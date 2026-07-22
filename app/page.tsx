@@ -9,14 +9,14 @@ const quickTools = [
   ["설교 준비", "본문부터 설교문까지", "/sermon", "책"],
   ["본문 연구", "문맥·원어·핵심 정리", "/research", "연구"],
   ["대표기도", "예배에 맞는 기도문", "/prayer", "기도"],
+  ["찬양 플래너", "본문·주제에 맞는 찬양", "/worship", "찬양"],
   ["이미지 스튜디오", "포스터·주보·썸네일", "/image-content", "디자인"],
   ["숏폼 기획", "쇼츠·릴스 대본과 구성", "/youtube-shorts", "영상"],
   ["문서 작성", "기획서·보고서·교육안", "/document", "문서"],
-  ["회의 정리", "결정사항과 할 일 추출", "/meeting", "회의"],
-  ["파일 분석", "자료 업로드 후 핵심 요약", "/file-analysis", "파일"],
+  ["사역 로드맵", "3년·5년 비전과 실행계획", "/roadmap", "비전"],
 ];
 
-const examples = ["창세기 22장으로 25분 설교 준비해줘", "이번 주 대표기도 작성해줘", "청년부 수련회 포스터 만들어줘", "회의록에서 할 일만 정리해줘"];
+const examples = ["창세기 22장으로 25분 설교 준비해줘", "고난 중 위로를 주는 찬양을 골라줘", "앞으로 5년의 선교 로드맵을 만들어줘", "청년부 수련회 포스터 만들어줘"];
 const projects = [
   ["창세기 22장 설교", "설교", 65, "7분 전"],
   ["주일 대표기도", "기도", 80, "1시간 전"],
@@ -60,6 +60,8 @@ export default function Home() {
   function routeRequest(value = request) {
     const text = value.trim();
     if (!text) return;
+    if (/찬양|복음성가|찬송가|콘티/.test(text)) return router.push(`/worship?request=${encodeURIComponent(text)}`);
+    if (/로드맵|비전|3년|5년/.test(text)) return router.push(`/roadmap?request=${encodeURIComponent(text)}`);
     if (/설교|강해|말씀/.test(text)) return router.push(`/sermon?request=${encodeURIComponent(text)}`);
     if (/기도|축도/.test(text)) return router.push(`/prayer?request=${encodeURIComponent(text)}`);
     if (/유튜브|youtube|youtu\.be/i.test(text)) return router.push(`/youtube-shorts?request=${encodeURIComponent(text)}`);
@@ -71,27 +73,25 @@ export default function Home() {
     router.push(`/workspace?request=${encodeURIComponent(text)}`);
   }
 
-  function submit(event: FormEvent) {
-    event.preventDefault();
-    routeRequest();
-  }
-
+  function submit(event: FormEvent) { event.preventDefault(); routeRequest(); }
   const visibleProjects = focus === "전체" ? projects : projects.filter((project) => project[1] === focus);
 
   return (
     <main className="partner-dashboard">
       <section className="partner-dashboard-main">
         <header className="partner-dashboard-greeting">
-          <div>
-            <p>안녕하세요, {name}님</p>
-            <h1>오늘의 사역을 <em>더 가볍고 깊게</em> 준비하세요.</h1>
-            <span>설교, 기도, 문서, 디자인을 한곳에서 이어갑니다.</span>
-          </div>
+          <div><p>안녕하세요, {name}님</p><h1>오늘의 사역을 <em>더 가볍고 깊게</em> 준비하세요.</h1><span>설교, 기도, 찬양, 문서와 디자인을 한곳에서 이어갑니다.</span></div>
           <Link href="/projects" className="partner-new-project">＋ 새 프로젝트</Link>
         </header>
 
+        <section className="partner-tip" style={{marginTop:24, padding:"22px 24px", borderRadius:16}}>
+          <b>사역파트너의 약속</b>
+          <h3 style={{fontSize:22, marginBottom:8}}>사역을 대신하지 않습니다. 사역에 더 집중하도록 돕습니다.</h3>
+          <p style={{fontSize:13, margin:0}}>말씀과 기도, 성령님의 인도하심과 사역자의 분별이 언제나 중심입니다. 반복되는 준비와 정리를 덜어 하나님과 사람에게 더 집중하도록 돕습니다.</p>
+        </section>
+
         <form className="partner-command" onSubmit={submit}>
-          <div className="partner-command-label"><span>AI 사역 도우미</span><small>무엇이든 편하게 요청하세요</small></div>
+          <div className="partner-command-label"><span>사역 도우미</span><small>무엇이든 편하게 요청하세요</small></div>
           <textarea value={request} onChange={(event) => setRequest(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); routeRequest(); } }} placeholder="예: 누가복음 15장으로 새가족 대상 20분 설교를 준비해줘" />
           <div className="partner-command-bottom"><span>Enter로 실행 · Shift+Enter로 줄바꿈</span><button type="submit">파트너에게 요청하기 <b>→</b></button></div>
         </form>
@@ -116,12 +116,9 @@ export default function Home() {
 
       <aside className="partner-dashboard-rail">
         <section className="partner-rail-summary"><small>이번 주 진행률</small><strong>61%</strong><p>4개의 사역이 진행 중입니다.</p><i><u style={{ width: "61%" }} /></i><div><span><b>4</b> 진행 중</span><span><b>2</b> 완료</span><span><b>1</b> 대기</span></div></section>
-
         <section className="partner-rail-card"><header><h2>이어 할 프로젝트</h2><Link href="/projects">전체 보기</Link></header>{projects.slice(0, 4).map(([title, type, progress, time]) => <Link href="/projects" className="partner-project-row" key={String(title)}><span>{String(type).slice(0, 1)}</span><div><strong>{title}</strong><i><u style={{ width: `${progress}%` }} /></i></div><small>{time}</small></Link>)}</section>
-
-        <section className="partner-rail-card partner-calendar"><header><h2>다가오는 일정</h2><Link href="/roadmap">캘린더</Link></header>{weekly.slice(0, 3).map(([title, due, dday]) => <div className="partner-calendar-row" key={String(title)}><span>{dday}</span><div><strong>{title}</strong><small>{due}</small></div></div>)}<Link className="partner-rail-more" href="/roadmap">＋ 일정 추가하기</Link></section>
-
-        <section className="partner-tip"><b>오늘의 사역 팁</b><h3>한 번 만든 콘텐츠를 여러 형식으로 바꿔보세요.</h3><p>포스터 한 장을 카드뉴스, 릴스, 교회 화면 비율로 자동 변환할 수 있습니다.</p><Link href="/transform">변환센터 열기 →</Link></section>
+        <section className="partner-rail-card partner-calendar"><header><h2>다가오는 일정</h2><Link href="/roadmap">로드맵</Link></header>{weekly.slice(0, 3).map(([title, due, dday]) => <div className="partner-calendar-row" key={String(title)}><span>{dday}</span><div><strong>{title}</strong><small>{due}</small></div></div>)}<Link className="partner-rail-more" href="/roadmap">＋ 사역 계획 추가하기</Link></section>
+        <section className="partner-tip"><b>오늘의 사역 팁</b><h3>설교 주제에 맞는 찬양이 고민되나요?</h3><p>본문과 예배 흐름을 입력하면 회중과 순서에 맞는 찬양을 추천합니다.</p><Link href="/worship">찬양 플래너 열기 →</Link></section>
       </aside>
     </main>
   );
