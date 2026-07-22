@@ -42,33 +42,35 @@ export default function ProjectsPage() {
   const average = projects.length ? Math.round(projects.reduce((sum, item) => sum + item.progress, 0) / projects.length) : 0;
 
   return (
-    <main className="project-page">
-      <aside className="project-sidebar">
-        <a className="mp-brand" href="/"><span className="mp-logo">✦</span><span><strong>목회파트너</strong><small>Pastor&apos;s Partner</small></span></a>
-        <nav className="mp-nav"><a href="/"><span>⌂</span>홈</a><a className="active" href="/projects"><span>▣</span>프로젝트</a><a href="/workspace"><span>▤</span>작업공간</a><a href="/workspace"><span>♲</span>변환센터</a><a href="/file-analysis"><span>▧</span>자료실</a><a href="/roadmap"><span>⌂</span>내 교회</a></nav>
-        <button className="project-new-side" onClick={() => setShowNew(true)}>＋ 새 프로젝트</button>
-      </aside>
+    <main className="v2-main projects-v3">
+      <header className="v2-page-head projects-v3-head">
+        <div><div className="eyebrow">MINISTRY PROJECTS</div><h1>프로젝트</h1><p>설교부터 이미지와 쇼츠까지, 하나의 사역 흐름으로 이어서 관리하세요.</p></div>
+        <button className="button button-primary" onClick={() => setShowNew(true)}>＋ 새 프로젝트</button>
+      </header>
 
-      <section className="project-main">
-        <header className="project-header"><div><span>MINISTRY PROJECTS</span><h1>프로젝트</h1><p>설교부터 이미지, 쇼츠까지 하나의 사역을 이어서 관리하세요.</p></div><button className="button button-primary" onClick={() => setShowNew(true)}>＋ 새 프로젝트</button></header>
+      <section className="projects-v3-summary">
+        <article><span>전체 프로젝트</span><strong>{projects.length}</strong><small>진행 중인 사역</small></article>
+        <article><span>평균 진행률</span><strong>{average}%</strong><div className="mp-progress"><i style={{ width: `${average}%` }} /></div></article>
+        <article><span>마감 임박</span><strong>{projects.filter((item) => /D-[123]/.test(item.due)).length}</strong><small>이번 주 확인 필요</small></article>
+      </section>
 
-        <section className="project-summary">
-          <article><span>전체 프로젝트</span><strong>{projects.length}</strong><small>진행 중인 사역</small></article>
-          <article><span>평균 진행률</span><strong>{average}%</strong><div className="mp-progress"><i style={{ width: `${average}%` }} /></div></article>
-          <article><span>마감 임박</span><strong>{projects.filter((item) => /D-[123]/.test(item.due)).length}</strong><small>이번 주 확인 필요</small></article>
-        </section>
+      <section className="projects-v3-workspace">
+        <aside className="projects-v3-list">
+          <div className="projects-v3-list-head"><strong>프로젝트 목록</strong><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="검색" /></div>
+          <div className="projects-v3-filters">{["전체", "설교", "기도", "이미지", "쇼츠", "문서"].map((item) => <button key={item} className={filter === item ? "active" : ""} onClick={() => setFilter(item)}>{item}</button>)}</div>
+          <div className="projects-v3-items">{visible.map((project) => <a key={project.id} href={`${typeInfo[project.type]?.href ?? "/workspace"}?request=${encodeURIComponent(project.title)}`}><span>{project.icon}</span><div><strong>{project.title}</strong><small>{project.type} · {project.updated}</small></div><b>→</b></a>)}</div>
+          {visible.length === 0 && <div className="project-empty">조건에 맞는 프로젝트가 없습니다.</div>}
+        </aside>
 
-        <div className="project-toolbar"><div className="project-filters">{["전체", "설교", "기도", "이미지", "쇼츠", "문서"].map((item) => <button key={item} className={filter === item ? "active" : ""} onClick={() => setFilter(item)}>{item}</button>)}</div><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="프로젝트 검색" /></div>
-
-        <section className="project-grid">
-          {visible.map((project) => <article className="project-card" key={project.id}>
+        <section className="projects-v3-board">
+          <div className="projects-v3-board-head"><div><span>이번 주 사역</span><h2>진행 상황</h2></div><a href="/roadmap">교회 로드맵 보기 →</a></div>
+          <div className="projects-v3-grid">{visible.map((project) => <article key={project.id}>
             <div className="project-card-top"><span className="project-card-icon">{project.icon}</span><button onClick={() => save(projects.map((item) => item.id === project.id ? { ...item, favorite: !item.favorite } : item))}>{project.favorite ? "★" : "☆"}</button></div>
-            <div className="project-type">{project.type}</div><h2>{project.title}</h2><p>최근 수정 {project.updated}</p>
+            <div className="project-type">{project.type}</div><h3>{project.title}</h3><p>최근 수정 {project.updated}</p>
             <div className="project-progress-head"><span>진행률</span><strong>{project.progress}%</strong></div><div className="mp-progress"><i style={{ width: `${project.progress}%` }} /></div>
-            <div className="project-card-bottom"><span>{project.due}</span><a href={`${typeInfo[project.type]?.href ?? "/workspace"}?request=${encodeURIComponent(project.title)}`}>프로젝트 열기　→</a></div>
-          </article>)}
+            <div className="project-card-bottom"><span>{project.due}</span><a href={`${typeInfo[project.type]?.href ?? "/workspace"}?request=${encodeURIComponent(project.title)}`}>열기 →</a></div>
+          </article>)}</div>
         </section>
-        {visible.length === 0 && <div className="project-empty">조건에 맞는 프로젝트가 없습니다.</div>}
       </section>
 
       {showNew && <div className="project-modal" onClick={() => setShowNew(false)}><form onSubmit={createProject} onClick={(e) => e.stopPropagation()}><button type="button" className="project-close" onClick={() => setShowNew(false)}>×</button><span>NEW PROJECT</span><h2>새 사역 프로젝트</h2><label>프로젝트 이름<input autoFocus value={title} onChange={(e) => setTitle(e.target.value)} placeholder="예: 부활주일 설교 준비" /></label><label>프로젝트 종류<select value={type} onChange={(e) => setType(e.target.value)}>{Object.keys(typeInfo).map((item) => <option key={item}>{item}</option>)}</select></label><button className="button button-primary wide" type="submit">프로젝트 만들기</button></form></div>}
