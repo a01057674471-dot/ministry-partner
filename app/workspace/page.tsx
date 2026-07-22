@@ -146,7 +146,6 @@ export default function WorkspacePage() {
   return (
     <main className="ws3-shell">
       <aside className="ws3-projects">
-        <a href="/" className="ws3-brand"><span>✦</span><strong>사역파트너</strong></a>
         <button className="ws3-new" onClick={addProject}>＋ 새 프로젝트</button>
         <p className="ws3-label">프로젝트</p>
         <div className="ws3-project-list">
