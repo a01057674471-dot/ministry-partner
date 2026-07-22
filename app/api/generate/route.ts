@@ -44,6 +44,20 @@ const prompts: Record<ToolType, string> = {
   file: "업로드된 텍스트 파일의 내용을 분석해 사용자가 원하는 형태로 재가공하세요. 요청이 불명확하면 1) 핵심 요약 2) 중요한 결정·주장 3) 실행 항목 4) 문서 목차 5) 쇼츠 소재 5개를 기본으로 제공하세요. 원문에 없는 사실을 만들지 마세요.",
 };
 
+const outputLimits: Record<ToolType, number> = {
+  sermon: 7000,
+  prayer: 2200,
+  shorts: 3500,
+  ideas: 2800,
+  thumbnail: 1800,
+  devotional: 1800,
+  roadmap: 5200,
+  document: 4200,
+  meeting: 3000,
+  youtube: 5000,
+  file: 4200,
+};
+
 function isToolType(value: unknown): value is ToolType {
   return typeof value === "string" && supportedTools.includes(value as ToolType);
 }
@@ -103,10 +117,13 @@ export async function POST(request: Request) {
     if (!apiKey) return NextResponse.json({ success: false, error: "OpenAI API 키가 등록되지 않았습니다." }, { status: 503 });
 
     const metadata = toolValue === "youtube" ? await getYouTubeMetadata(topic) : "";
-    const client = new OpenAI({ apiKey, timeout: 120000, maxRetries: 1 });
+    const client = new OpenAI({ apiKey, timeout: 90000, maxRetries: 0 });
     const response = await client.responses.create({
       model: "gpt-5-mini",
-      instructions: "한국어로 명확하고 실무적으로 답하세요. 교단과 신학적 입장이 입력되지 않았다면 건강한 복음주의 개신교의 일반적 범위에서 균형 있게 작성하세요. 확인하지 못한 사실이나 출처를 꾸며내지 마세요.",
+      reasoning: { effort: "minimal" },
+      text: { verbosity: "low" },
+      max_output_tokens: outputLimits[toolValue],
+      instructions: "한국어로 명확하고 실무적으로 답하세요. 첫 문장부터 바로 결과를 제시하고 불필요한 서론과 반복을 제거하세요. 교단과 신학적 입장이 입력되지 않았다면 건강한 복음주의 개신교의 일반적 범위에서 균형 있게 작성하세요. 확인하지 못한 사실이나 출처를 꾸며내지 마세요.",
       input: `${prompts[toolValue]}\n\n사용자 입력:\n${topic}${metadata}`,
     });
 
