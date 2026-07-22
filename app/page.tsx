@@ -11,7 +11,7 @@ const quickTools = [
   ["유튜브 → 쇼츠", "유튜브 영상을 쇼츠로 변환", "/youtube-shorts", "▶"],
   ["문서 작성", "기획서·보고서·교육안 작성", "/document", "📄"],
   ["회의 정리", "회의 내용을 깔끔하게 정리", "/meeting", "👥"],
-  ["파일 분석", "업로드한 파일을 분석", "/file-analysis", "📁"],
+  ["자료실", "예화·기도·프롬프트 검색", "/library", "📚"],
 ];
 
 const projects = [
@@ -66,7 +66,7 @@ export default function Home() {
           <a href="/projects"><span>▣</span>프로젝트</a>
           <a href="/workspace"><span>▤</span>작업공간</a>
           <a href="/transform"><span>♲</span>변환센터</a>
-          <a href="/file-analysis"><span>▧</span>자료실</a>
+          <a href="/library"><span>▧</span>자료실</a>
           <a href="/roadmap"><span>⌂</span>내 교회</a>
           <a href="/workspace"><span>⚙</span>설정</a>
         </nav>
@@ -90,7 +90,7 @@ export default function Home() {
         <aside className="mp-rightbar">
           <section className="mp-panel mp-project-list"><div className="mp-panel-head"><h2>프로젝트</h2><a href="/projects">＋ 새 프로젝트</a></div>{projects.map(([title,,progress,time,icon]) => <a href="/projects" key={String(title)}><span className="mp-list-icon">{icon}</span><div><strong>{title}</strong><div className="mp-inline-progress"><i style={{width: `${progress}%`}} /></div></div><small>{time}</small><b>☆　⋯</b></a>)}<a className="mp-all" href="/projects">모든 프로젝트 보기　›</a></section>
           <section className="mp-panel mp-calendar"><div className="mp-panel-head"><h2>사역 캘린더</h2><a href="/projects">전체 일정 보기　›</a></div><div className="mp-calendar-week"><span>월<br/>12</span><span>화<br/>13</span><span>수<br/>14</span><span className="today">목<br/>15</span><span>금<br/>16</span><span>토<br/>17</span><span>일<br/>18</span></div>{ministry.slice(0,3).map(([title,,dday]) => <div className="mp-calendar-item" key={String(title)}><i /> <strong>{title}</strong><small>{dday}</small></div>)}<button className="mp-calendar-add">▣　새 일정 추가</button></section>
-          <section className="mp-tip"><b>✦　오늘의 팁</b><h3>설교에 적용할 예화가 필요하신가요?</h3><p>본문과 주제에 맞는 예화를 추천받아 보세요.</p><a href="/sermon">예화 추천받기　→</a></section>
+          <section className="mp-tip"><b>✦　오늘의 팁</b><h3>설교에 적용할 예화가 필요하신가요?</h3><p>자료실에서 주제별 예화와 기도 자료를 바로 찾아보세요.</p><a href="/library">자료실 열기　→</a></section>
         </aside>
       </section>
     </main>
