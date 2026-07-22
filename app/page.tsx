@@ -74,7 +74,7 @@ export default function Home() {
       <section className="partner-dashboard-main">
         <header className="partner-home-brand">
           <Link href="/" aria-label="사역파트너 홈" className="partner-home-logo">
-            <span aria-hidden="true">✦</span>
+            <span className="partner-brand-symbol" aria-hidden="true"><i /><i /><i /></span>
             <div><strong>사역파트너</strong><small>MINISTRY PARTNER</small></div>
           </Link>
           <p>안녕하세요, {name}님</p>
