@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 const mainTools = [
@@ -12,9 +12,38 @@ const mainTools = [
   { icon: "🤖", title: "AI에게 질문", href: "/workspace", example: "다음 주 사역을 어떻게 준비하면 좋을까요?" },
 ];
 
+function getGreeting(hour: number) {
+  if (hour < 12) {
+    return {
+      title: "좋은 아침입니다, 목사님.",
+      message: "오늘도 말씀 안에서 평안하시길 바랍니다.",
+    };
+  }
+
+  if (hour < 18) {
+    return {
+      title: "목사님, 오늘도 축복합니다.",
+      message: "말씀을 깊이 연구하고 교회를 사랑으로 섬기는 사역을 함께 준비하겠습니다.",
+    };
+  }
+
+  return {
+    title: "목사님, 오늘도 수고 많으셨습니다.",
+    message: "남은 사역에도 주님의 평안과 지혜가 함께하시길 바랍니다.",
+  };
+}
+
 export default function Home() {
   const router = useRouter();
   const [request, setRequest] = useState("");
+  const [greeting, setGreeting] = useState({
+    title: "목사님, 오늘도 축복합니다.",
+    message: "말씀을 깊이 연구하고 교회를 사랑으로 섬기는 사역을 함께 준비하겠습니다.",
+  });
+
+  useEffect(() => {
+    setGreeting(getGreeting(new Date().getHours()));
+  }, []);
 
   function start(event: FormEvent) {
     event.preventDefault();
@@ -38,13 +67,13 @@ export default function Home() {
 
       <section className="senior-main">
         <div className="senior-intro">
-          <p className="senior-kicker">목회자의 시간을 아껴주는 AI</p>
-          <h1>무엇을 도와드릴까요?</h1>
-          <p>하고 싶은 일을 그대로 적어 주세요.</p>
+          <p className="senior-kicker">말씀과 사역을 함께 준비하는 AI</p>
+          <h1>{greeting.title}</h1>
+          <p>{greeting.message}</p>
         </div>
 
         <form className="senior-command" onSubmit={start}>
-          <label htmlFor="main-request">도움받을 내용을 입력하세요</label>
+          <label htmlFor="main-request">무엇을 도와드릴까요?</label>
           <textarea
             id="main-request"
             value={request}
