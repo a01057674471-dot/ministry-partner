@@ -15,6 +15,7 @@ import "./mobile-hotfix.css";
 import "./workspace-mobile-fix.css";
 import "./image-editor.css";
 import "./partner-dashboard.css";
+import "./v2-request-fixes.css";
 import CloudSyncBridge from "./components/CloudSyncBridge";
 import GlobalChrome from "./components/GlobalChrome";
 
