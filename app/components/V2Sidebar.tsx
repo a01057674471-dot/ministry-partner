@@ -9,7 +9,7 @@ const items = [
   ["/transform", "변환센터", "↻"],
   ["/image-content", "이미지 스튜디오", "◫"],
   ["/library", "자료실", "▧"],
-  ["/roadmap", "내 교회", "◇"],
+  ["/roadmap", "우리 교회", "◇"],
   ["/pricing", "요금제", "₩"],
   ["/account", "계정", "○"],
 ];
