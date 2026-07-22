@@ -6,6 +6,8 @@ import "./project-image-pages.css";
 import "./workspace-v3.css";
 import "./transform-center.css";
 import "./library.css";
+import "./account-cloud.css";
+import CloudSyncBridge from "./components/CloudSyncBridge";
 
 export const metadata: Metadata = {
   title: "목회파트너",
@@ -15,7 +17,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ko">
-      <body>{children}</body>
+      <body><CloudSyncBridge />{children}</body>
     </html>
   );
 }
