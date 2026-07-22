@@ -3,47 +3,256 @@
 import { ChangeEvent, PointerEvent, useEffect, useRef, useState } from "react";
 import V2Sidebar from "../components/V2Sidebar";
 
-type Layer={x:number;y:number;size:number;color:string;font:string;weight:number;shadow:boolean;outline:boolean;box:boolean;align:"left"|"center";rotate:number;opacity:number};
-type Template={name:string;category:string;prompt:string;title:string;subtitle:string;style:string;mood:string;layer:Partial<Layer>};
-const fonts=[["system","깔끔한 고딕","Arial, 'Apple SD Gothic Neo', sans-serif"],["serif","차분한 명조","Georgia, 'AppleMyungjo', serif"],["rounded","둥근 고딕","'Arial Rounded MT Bold', Arial, sans-serif"],["hand","손글씨 느낌","'Comic Sans MS', 'Apple SD Gothic Neo', cursive"]];
-const templates:Template[]=[
- {name:"주일예배",category:"예배",prompt:"따뜻한 자연광이 비치는 현대적인 한국 교회 예배당, 차분하고 경건한 분위기, 제목을 넣을 넓은 여백",title:"주일예배",subtitle:"말씀과 찬양으로 함께 드리는 예배",style:"photo",mood:"holy",layer:{x:50,y:28,size:76}},
- {name:"금요기도회",category:"예배",prompt:"깊은 청록과 부드러운 빛, 기도와 묵상을 위한 현대적 교회 포스터 배경, 중앙 여백",title:"금요기도회",subtitle:"함께 기도하며 주님을 구합니다",style:"cinematic",mood:"holy",layer:{x:50,y:66,size:78}},
- {name:"청년부 수련회",category:"행사",prompt:"푸른 여름 하늘과 바다, 역동적이고 젊은 감성, 한국 청년부 수련회 포스터 배경, 넓은 제목 영역",title:"다시, 뜨겁게",subtitle:"2026 청년부 여름수련회",style:"photo",mood:"dynamic",layer:{x:9,y:65,size:86,align:"left"}},
- {name:"새생명축제",category:"행사",prompt:"밝고 환영하는 분위기의 한국 교회 초청 행사 배경, 따뜻한 사람들의 실루엣, 세련된 여백",title:"당신을 초대합니다",subtitle:"새생명축제",style:"photo",mood:"bright",layer:{x:50,y:60,size:74}},
- {name:"말씀 카드",category:"SNS",prompt:"고요한 새벽빛과 펼쳐진 자연 풍경, 미니멀한 말씀 카드 배경, 중앙에 넓은 여백",title:"오늘의 말씀",subtitle:"두려워하지 말라 내가 너와 함께 함이라",style:"minimal",mood:"warm",layer:{x:50,y:46,size:66}},
- {name:"쇼츠 썸네일",category:"SNS",prompt:"강한 대비와 선명한 초점, 현대적인 크리스천 쇼츠 썸네일 배경, 인물 없는 디자인, 큰 제목 여백",title:"왜 자꾸 싸울까?",subtitle:"내 안의 어린아이가 울고 있다",style:"cinematic",mood:"dynamic",layer:{x:8,y:62,size:90,align:"left",outline:true}},
- {name:"성탄절",category:"절기",prompt:"고급스럽고 따뜻한 성탄 분위기, 골드 빛과 깊은 밤색, 과하지 않은 현대적 교회 포스터 배경",title:"기쁜 소식",subtitle:"성탄감사예배",style:"cinematic",mood:"warm",layer:{x:50,y:42,size:80}},
- {name:"부활절",category:"절기",prompt:"새벽의 빛과 희망, 밝고 정제된 부활절 예배 포스터 배경, 십자가는 직접 요청한 경우에만 작게",title:"다시 살아나셨습니다",subtitle:"부활절 감사예배",style:"photo",mood:"bright",layer:{x:50,y:67,size:70}},
-];
-const stickers=["✦","✝","♡","☀","✿","➜","✓","❝"];
-const baseTitle:Layer={x:50,y:68,size:76,color:"#ffffff",font:"system",weight:800,shadow:true,outline:false,box:false,align:"center",rotate:0,opacity:100};
-const baseSub:Layer={...baseTitle,y:80,size:30,weight:600};
+type Layer = {
+  x: number;
+  y: number;
+  size: number;
+  color: string;
+  font: string;
+  weight: number;
+  shadow: boolean;
+  outline: boolean;
+  align: "left" | "center";
+};
 
-export default function ImageContentPage(){
- const previewRef=useRef<HTMLDivElement>(null); const dragRef=useRef<"title"|"subtitle"|null>(null);
- const [panel,setPanel]=useState<"template"|"background"|"text"|"sticker">("template"); const [type,setType]=useState("poster"); const [style,setStyle]=useState("photo"); const [mood,setMood]=useState("holy"); const [size,setSize]=useState("1024x1536");
- const [topic,setTopic]=useState(""); const [title,setTitle]=useState(""); const [subtitle,setSubtitle]=useState(""); const [imageUrl,setImageUrl]=useState(""); const [loading,setLoading]=useState(false); const [error,setError]=useState("");
- const [selected,setSelected]=useState<"title"|"subtitle">("title"); const [titleLayer,setTitleLayer]=useState<Layer>(baseTitle); const [subLayer,setSubLayer]=useState<Layer>(baseSub); const [stickerItems,setStickerItems]=useState<Array<{id:number;text:string;x:number;y:number}>>([]);
- useEffect(()=>{const request=new URLSearchParams(location.search).get("request");if(request)setTopic(request);},[]);
- const active=selected==="title"?titleLayer:subLayer; const update=(next:Partial<Layer>)=>selected==="title"?setTitleLayer(v=>({...v,...next})):setSubLayer(v=>({...v,...next}));
- const fontFamily=(layer:Layer)=>fonts.find(v=>v[0]===layer.font)?.[2]||fonts[0][2];
- function applyTemplate(t:Template){setTopic(t.prompt);setTitle(t.title);setSubtitle(t.subtitle);setStyle(t.style);setMood(t.mood);setTitleLayer(v=>({...v,...t.layer}));setPanel("background");}
- function upload(event:ChangeEvent<HTMLInputElement>){const file=event.target.files?.[0];if(!file)return;if(!file.type.startsWith("image/")){setError("이미지 파일만 선택해 주세요.");return;}const reader=new FileReader();reader.onload=()=>{setImageUrl(String(reader.result));setError("");setPanel("text");};reader.readAsDataURL(file);}
- async function generate(){if(!topic.trim())return setError("배경에 들어갈 장면과 분위기를 적어 주세요.");setLoading(true);setError("");try{const response=await fetch("/api/generate-image",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:topic,size,type,style,mood,quality:"medium"})});const data=await response.json();if(!response.ok||!data.success)throw new Error(data.error||"생성에 실패했습니다.");setImageUrl(data.imageUrl);setPanel("text");}catch(e){setError(e instanceof Error?e.message:"생성 중 오류가 발생했습니다.");}finally{setLoading(false);}}
- function startDrag(e:PointerEvent<HTMLDivElement>,target:"title"|"subtitle"){dragRef.current=target;setSelected(target);e.currentTarget.setPointerCapture(e.pointerId);}
- function move(e:PointerEvent<HTMLDivElement>){if(!dragRef.current||!previewRef.current)return;const r=previewRef.current.getBoundingClientRect();const x=Math.max(4,Math.min(96,(e.clientX-r.left)/r.width*100));const y=Math.max(5,Math.min(95,(e.clientY-r.top)/r.height*100));dragRef.current==="title"?setTitleLayer(v=>({...v,x,y})):setSubLayer(v=>({...v,x,y}));}
- function end(){dragRef.current=null;}
- async function save(){if(!imageUrl)return;const [w,h]=size.split("x").map(Number);const c=document.createElement("canvas");c.width=w;c.height=h;const ctx=c.getContext("2d");if(!ctx)return;const img=new Image();img.onload=()=>{ctx.drawImage(img,0,0,w,h);const draw=(copy:string,l:Layer)=>{if(!copy)return;ctx.save();ctx.globalAlpha=l.opacity/100;ctx.translate(w*l.x/100,h*l.y/100);ctx.rotate(l.rotate*Math.PI/180);ctx.font=`${l.weight} ${Math.round(w*l.size/1024)}px ${fontFamily(l)}`;ctx.textAlign=l.align;ctx.textBaseline="middle";ctx.fillStyle=l.color;ctx.shadowColor=l.shadow?"rgba(0,0,0,.7)":"transparent";ctx.shadowBlur=l.shadow?16:0;if(l.outline){ctx.lineWidth=8;ctx.strokeStyle="#111";ctx.strokeText(copy,0,0,w*.9);}ctx.fillText(copy,0,0,w*.9);ctx.restore();};draw(title,titleLayer);draw(subtitle,subLayer);ctx.font=`${Math.round(w*.06)}px Arial`;ctx.textAlign="center";stickerItems.forEach(s=>ctx.fillText(s.text,w*s.x/100,h*s.y/100));const a=document.createElement("a");a.download="ministry-partner-design.png";a.href=c.toDataURL("image/png");a.click();};img.src=imageUrl;}
- const categories=["예배","행사","SNS","절기"];
- return <main className="v2-shell"><V2Sidebar/><section className="v2-main"><div className="v2-page-head"><div><div className="eyebrow">AI DESIGN STUDIO</div><h1>AI 디자인</h1><p>템플릿 선택 → 배경 생성 또는 업로드 → 한글 편집 순서로 완성하세요.</p></div></div>
-  <div className="design-workflow-tabs"><button className={panel==="template"?"active":""} onClick={()=>setPanel("template")}>1 템플릿</button><button className={panel==="background"?"active":""} onClick={()=>setPanel("background")}>2 배경</button><button className={panel==="text"?"active":""} onClick={()=>setPanel("text")}>3 글자</button><button className={panel==="sticker"?"active":""} onClick={()=>setPanel("sticker")}>4 꾸미기</button></div>
-  <div className="image-studio-grid image-editor-grid"><section className="image-input-card">
-   {panel==="template"&&<><div className="editor-step-label"><b>1</b>교회용 추천 템플릿</div>{categories.map(cat=><div className="template-category" key={cat}><strong>{cat}</strong><div className="template-scroll">{templates.filter(t=>t.category===cat).map(t=><button key={t.name} onClick={()=>applyTemplate(t)}>{t.name}</button>)}</div></div>)}</>}
-   {panel==="background"&&<><div className="editor-step-label"><b>2</b>배경 만들기 또는 내 이미지 열기</div><label className="image-upload-box">내 사진·교회 사진 열기<input type="file" accept="image/*" onChange={upload}/></label><label>배경 설명<textarea value={topic} onChange={e=>setTopic(e.target.value)} placeholder="예: 청년부 수련회, 푸른 바다와 햇살, 제목을 넣을 넓은 여백"/></label><details open><summary>스타일과 크기</summary><div><label>스타일<select value={style} onChange={e=>setStyle(e.target.value)}><option value="photo">실사</option><option value="cinematic">시네마틱</option><option value="minimal">미니멀</option><option value="illustration">일러스트</option><option value="watercolor">수채화</option></select></label><label>분위기<select value={mood} onChange={e=>setMood(e.target.value)}><option value="holy">경건하고 평안하게</option><option value="bright">밝고 희망차게</option><option value="warm">따뜻하게</option><option value="dynamic">역동적으로</option></select></label><label>크기<select value={size} onChange={e=>setSize(e.target.value)}><option value="1024x1024">정사각형</option><option value="1024x1536">세로 포스터·릴스</option><option value="1536x1024">가로·유튜브</option></select></label></div></details><button className="button button-primary wide" onClick={generate} disabled={loading}>{loading?"배경 생성 중…":"글자 없는 AI 배경 만들기"}</button></>}
-   {panel==="text"&&<><div className="editor-step-label"><b>3</b>한글 문구 편집</div><label>제목<input value={title} onFocus={()=>setSelected("title")} onChange={e=>setTitle(e.target.value)}/></label><label>부제<input value={subtitle} onFocus={()=>setSelected("subtitle")} onChange={e=>setSubtitle(e.target.value)}/></label><div className="design-layer-tabs"><button className={selected==="title"?"active":""} onClick={()=>setSelected("title")}>제목</button><button className={selected==="subtitle"?"active":""} onClick={()=>setSelected("subtitle")}>부제</button></div><label>글꼴<select value={active.font} onChange={e=>update({font:e.target.value})}>{fonts.map(f=><option key={f[0]} value={f[0]}>{f[1]}</option>)}</select></label><label>글자 크기 <span>{active.size}</span><input type="range" min="18" max="120" value={active.size} onChange={e=>update({size:Number(e.target.value)})}/></label><div className="image-compact-row"><label>글자색<input type="color" value={active.color} onChange={e=>update({color:e.target.value})}/></label><label>굵기<select value={active.weight} onChange={e=>update({weight:Number(e.target.value)})}><option value="400">보통</option><option value="600">중간</option><option value="800">굵게</option><option value="900">매우 굵게</option></select></label></div><div className="design-toggle-row"><button className={active.shadow?"active":""} onClick={()=>update({shadow:!active.shadow})}>그림자</button><button className={active.outline?"active":""} onClick={()=>update({outline:!active.outline})}>외곽선</button><button onClick={()=>update({align:active.align==="center"?"left":"center"})}>{active.align==="center"?"가운데 정렬":"왼쪽 정렬"}</button></div></>}
-   {panel==="sticker"&&<><div className="editor-step-label"><b>4</b>스티커와 마무리</div><div className="sticker-picker">{stickers.map(s=><button key={s} onClick={()=>setStickerItems(v=>[...v,{id:Date.now(),text:s,x:50,y:50}])}>{s}</button>)}</div><p className="design-help">스티커는 중앙에 추가됩니다. 완성 이미지를 저장하기 전에 미리보기를 확인하세요.</p><button className="button button-primary wide" onClick={save} disabled={!imageUrl}>완성 이미지 저장</button></>}
-   {error&&<div className="notice error">{error}</div>}
-  </section><section className="image-result-card"><div className="result-toolbar"><strong>실시간 미리보기</strong><div>{imageUrl&&<button onClick={save}>저장</button>}</div></div>{loading?<div className="result-paper">글자 없는 배경을 만들고 있습니다.</div>:imageUrl?<><div className="design-help">제목과 부제를 끌어서 원하는 위치에 놓으세요.</div><div className="image-v3-preview design-canvas" ref={previewRef} onPointerMove={move} onPointerUp={end} onPointerCancel={end}><img src={imageUrl} alt="편집할 이미지"/><div className={`design-text-layer ${selected==="title"?"selected":""} ${titleLayer.outline?"has-outline":""}`} onPointerDown={e=>startDrag(e,"title")} style={{left:`${titleLayer.x}%`,top:`${titleLayer.y}%`,color:titleLayer.color,fontSize:`${titleLayer.size/10}vw`,fontFamily:fontFamily(titleLayer),fontWeight:titleLayer.weight,textAlign:titleLayer.align,transform:`translate(${titleLayer.align==="center"?"-50%":"0"},-50%) rotate(${titleLayer.rotate}deg)`,textShadow:titleLayer.shadow?"0 3px 16px rgba(0,0,0,.72)":"none"}}>{title}</div><div className={`design-text-layer subtitle ${selected==="subtitle"?"selected":""} ${subLayer.outline?"has-outline":""}`} onPointerDown={e=>startDrag(e,"subtitle")} style={{left:`${subLayer.x}%`,top:`${subLayer.y}%`,color:subLayer.color,fontSize:`${subLayer.size/10}vw`,fontFamily:fontFamily(subLayer),fontWeight:subLayer.weight,textAlign:subLayer.align,transform:`translate(${subLayer.align==="center"?"-50%":"0"},-50%)`,textShadow:subLayer.shadow?"0 3px 16px rgba(0,0,0,.72)":"none"}}>{subtitle}</div>{stickerItems.map(s=><div className="design-sticker" key={s.id} style={{left:`${s.x}%`,top:`${s.y}%`}}>{s.text}</div>)}</div></>:<div className="result-paper">추천 템플릿을 고르거나 내 이미지를 열어 시작하세요.</div>}</section></div>
- </section></main>;
+type Target = "title" | "subtitle";
+
+const fonts = [
+  ["system", "깔끔한 고딕", "Arial, 'Apple SD Gothic Neo', sans-serif"],
+  ["serif", "차분한 명조", "Georgia, 'AppleMyungjo', serif"],
+  ["rounded", "둥근 고딕", "'Arial Rounded MT Bold', Arial, sans-serif"],
+];
+
+const baseTitle: Layer = { x: 50, y: 68, size: 76, color: "#ffffff", font: "system", weight: 800, shadow: true, outline: false, align: "center" };
+const baseSub: Layer = { ...baseTitle, y: 80, size: 30, weight: 600 };
+
+export default function ImageContentPage() {
+  const previewRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef<Target | null>(null);
+  const resizeRef = useRef<{ target: Target; startX: number; startSize: number } | null>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
+  const subtitleRef = useRef<HTMLDivElement>(null);
+
+  const [panel, setPanel] = useState<"background" | "upload" | "text">("background");
+  const [style, setStyle] = useState("photo");
+  const [mood, setMood] = useState("holy");
+  const [size, setSize] = useState("1024x1536");
+  const [topic, setTopic] = useState("");
+  const [title, setTitle] = useState("제목을 입력하세요");
+  const [subtitle, setSubtitle] = useState("부제목을 입력하세요");
+  const [imageUrl, setImageUrl] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [selected, setSelected] = useState<Target>("title");
+  const [titleLayer, setTitleLayer] = useState<Layer>(baseTitle);
+  const [subLayer, setSubLayer] = useState<Layer>(baseSub);
+
+  useEffect(() => {
+    const request = new URLSearchParams(location.search).get("request");
+    if (request) setTopic(request);
+  }, []);
+
+  const active = selected === "title" ? titleLayer : subLayer;
+  const update = (next: Partial<Layer>) => selected === "title"
+    ? setTitleLayer((value) => ({ ...value, ...next }))
+    : setSubLayer((value) => ({ ...value, ...next }));
+  const fontFamily = (layer: Layer) => fonts.find((font) => font[0] === layer.font)?.[2] || fonts[0][2];
+
+  function upload(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) return setError("이미지 파일만 선택해 주세요.");
+    const reader = new FileReader();
+    reader.onload = () => {
+      setImageUrl(String(reader.result));
+      setError("");
+      setPanel("text");
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async function generate() {
+    if (!topic.trim()) return setError("배경에 들어갈 장면과 분위기를 적어 주세요.");
+    setLoading(true);
+    setError("");
+    try {
+      const response = await fetch("/api/generate-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: topic, size, type: "poster", style, mood, quality: "medium" }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.error || "생성에 실패했습니다.");
+      setImageUrl(data.imageUrl);
+      setPanel("text");
+    } catch (event) {
+      setError(event instanceof Error ? event.message : "생성 중 오류가 발생했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function startDrag(event: PointerEvent<HTMLDivElement>, target: Target) {
+    if ((event.target as HTMLElement).dataset.handle === "resize") return;
+    dragRef.current = target;
+    setSelected(target);
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  function move(event: PointerEvent<HTMLDivElement>) {
+    if (resizeRef.current) {
+      const delta = event.clientX - resizeRef.current.startX;
+      const next = Math.max(18, Math.min(140, resizeRef.current.startSize + delta / 3));
+      resizeRef.current.target === "title"
+        ? setTitleLayer((value) => ({ ...value, size: next }))
+        : setSubLayer((value) => ({ ...value, size: next }));
+      return;
+    }
+    if (!dragRef.current || !previewRef.current) return;
+    const rect = previewRef.current.getBoundingClientRect();
+    const x = Math.max(4, Math.min(96, ((event.clientX - rect.left) / rect.width) * 100));
+    const y = Math.max(5, Math.min(95, ((event.clientY - rect.top) / rect.height) * 100));
+    dragRef.current === "title"
+      ? setTitleLayer((value) => ({ ...value, x, y }))
+      : setSubLayer((value) => ({ ...value, x, y }));
+  }
+
+  function startResize(event: PointerEvent<HTMLButtonElement>, target: Target, currentSize: number) {
+    event.stopPropagation();
+    resizeRef.current = { target, startX: event.clientX, startSize: currentSize };
+    setSelected(target);
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  function end() {
+    dragRef.current = null;
+    resizeRef.current = null;
+  }
+
+  function focusText(target: Target) {
+    setSelected(target);
+    const node = target === "title" ? titleRef.current : subtitleRef.current;
+    node?.focus();
+    document.execCommand("selectAll", false);
+  }
+
+  async function save() {
+    if (!imageUrl) return;
+    const [width, height] = size.split("x").map(Number);
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext("2d");
+    if (!context) return;
+    const image = new Image();
+    image.onload = () => {
+      context.drawImage(image, 0, 0, width, height);
+      const draw = (copy: string, layer: Layer) => {
+        if (!copy) return;
+        context.save();
+        context.translate((width * layer.x) / 100, (height * layer.y) / 100);
+        context.font = `${layer.weight} ${Math.round((width * layer.size) / 1024)}px ${fontFamily(layer)}`;
+        context.textAlign = layer.align;
+        context.textBaseline = "middle";
+        context.fillStyle = layer.color;
+        context.shadowColor = layer.shadow ? "rgba(0,0,0,.7)" : "transparent";
+        context.shadowBlur = layer.shadow ? 16 : 0;
+        if (layer.outline) {
+          context.lineWidth = 8;
+          context.strokeStyle = "#111";
+          context.strokeText(copy, 0, 0, width * 0.9);
+        }
+        context.fillText(copy, 0, 0, width * 0.9);
+        context.restore();
+      };
+      draw(title, titleLayer);
+      draw(subtitle, subLayer);
+      const anchor = document.createElement("a");
+      anchor.download = "ministry-partner-design.png";
+      anchor.href = canvas.toDataURL("image/png");
+      anchor.click();
+    };
+    image.src = imageUrl;
+  }
+
+  const textLayer = (target: Target, copy: string, layer: Layer, ref: React.RefObject<HTMLDivElement | null>) => (
+    <div
+      ref={ref}
+      className={`design-text-layer ${target === "subtitle" ? "subtitle" : ""} ${selected === target ? "selected" : ""} ${layer.outline ? "has-outline" : ""}`}
+      contentEditable
+      suppressContentEditableWarning
+      spellCheck={false}
+      onDoubleClick={() => focusText(target)}
+      onFocus={() => setSelected(target)}
+      onBlur={(event) => target === "title" ? setTitle(event.currentTarget.textContent || "") : setSubtitle(event.currentTarget.textContent || "")}
+      onPointerDown={(event) => startDrag(event, target)}
+      style={{
+        left: `${layer.x}%`, top: `${layer.y}%`, color: layer.color,
+        fontSize: `${layer.size / 10}vw`, fontFamily: fontFamily(layer), fontWeight: layer.weight,
+        textAlign: layer.align, transform: `translate(${layer.align === "center" ? "-50%" : "0"},-50%)`,
+        textShadow: layer.shadow ? "0 3px 16px rgba(0,0,0,.72)" : "none",
+      }}
+    >
+      {copy}
+      {selected === target && <button data-handle="resize" className="design-resize-handle" aria-label="글자 크기 조절" onPointerDown={(event) => startResize(event, target, layer.size)} />}
+    </div>
+  );
+
+  return (
+    <main className="v2-shell design-v2-shell">
+      <V2Sidebar />
+      <section className="v2-main">
+        <div className="v2-page-head"><div><div className="eyebrow">DESIGN STUDIO</div><h1>디자인</h1><p>배경을 만들거나 사진을 올린 뒤, 화면에서 글자를 직접 수정하세요.</p></div></div>
+        <div className="design-simple-tabs">
+          <button className={panel === "background" ? "active" : ""} onClick={() => setPanel("background")}>배경 만들기</button>
+          <button className={panel === "upload" ? "active" : ""} onClick={() => setPanel("upload")}>이미지 업로드</button>
+          <button className={panel === "text" ? "active" : ""} onClick={() => setPanel("text")}>텍스트</button>
+        </div>
+
+        <div className="image-studio-grid image-editor-grid design-simple-grid">
+          <section className="image-input-card">
+            {panel === "background" && <>
+              <div className="editor-step-label"><b>1</b>글자 없는 배경 만들기</div>
+              <label>배경 설명<textarea value={topic} onChange={(event) => setTopic(event.target.value)} placeholder="예: 청년부 수련회, 푸른 바다와 햇살, 제목을 넣을 넓은 여백" /></label>
+              <div className="image-compact-row">
+                <label>스타일<select value={style} onChange={(event) => setStyle(event.target.value)}><option value="photo">실사</option><option value="cinematic">시네마틱</option><option value="minimal">미니멀</option><option value="illustration">일러스트</option><option value="watercolor">수채화</option></select></label>
+                <label>분위기<select value={mood} onChange={(event) => setMood(event.target.value)}><option value="holy">경건하고 평안하게</option><option value="bright">밝고 희망차게</option><option value="warm">따뜻하게</option><option value="dynamic">역동적으로</option></select></label>
+              </div>
+              <label>크기<select value={size} onChange={(event) => setSize(event.target.value)}><option value="1024x1024">정사각형</option><option value="1024x1536">세로 포스터·릴스</option><option value="1536x1024">가로·유튜브</option></select></label>
+              <button className="button button-primary wide" onClick={generate} disabled={loading}>{loading ? "배경 생성 중…" : "배경 만들기"}</button>
+            </>}
+
+            {panel === "upload" && <>
+              <div className="editor-step-label"><b>2</b>내 이미지 열기</div>
+              <label className="image-upload-box">사진 또는 교회 이미지 선택<input type="file" accept="image/*" onChange={upload} /></label>
+              <p className="design-help">업로드한 이미지는 오른쪽 캔버스에서 바로 확인할 수 있습니다.</p>
+            </>}
+
+            {panel === "text" && <>
+              <div className="editor-step-label"><b>3</b>선택한 글자 편집</div>
+              <p className="design-help">오른쪽 글자를 더블클릭하면 그 자리에서 직접 수정할 수 있습니다.</p>
+              <div className="design-layer-tabs"><button className={selected === "title" ? "active" : ""} onClick={() => setSelected("title")}>제목</button><button className={selected === "subtitle" ? "active" : ""} onClick={() => setSelected("subtitle")}>부제</button></div>
+              <label>글꼴<select value={active.font} onChange={(event) => update({ font: event.target.value })}>{fonts.map((font) => <option key={font[0]} value={font[0]}>{font[1]}</option>)}</select></label>
+              <div className="image-compact-row"><label>글자색<input type="color" value={active.color} onChange={(event) => update({ color: event.target.value })} /></label><label>굵기<select value={active.weight} onChange={(event) => update({ weight: Number(event.target.value) })}><option value="400">보통</option><option value="600">중간</option><option value="800">굵게</option><option value="900">매우 굵게</option></select></label></div>
+              <div className="design-size-buttons"><button onClick={() => update({ size: Math.max(18, active.size - 6) })}>A−</button><strong>{Math.round(active.size)}</strong><button onClick={() => update({ size: Math.min(140, active.size + 6) })}>A＋</button></div>
+              <div className="design-toggle-row"><button className={active.shadow ? "active" : ""} onClick={() => update({ shadow: !active.shadow })}>그림자</button><button className={active.outline ? "active" : ""} onClick={() => update({ outline: !active.outline })}>외곽선</button><button onClick={() => update({ align: active.align === "center" ? "left" : "center" })}>{active.align === "center" ? "가운데" : "왼쪽"}</button></div>
+            </>}
+            {error && <div className="ws3-error">{error}</div>}
+          </section>
+
+          <section className="image-result-card">
+            <div className="result-toolbar"><strong>실시간 편집</strong><div>{imageUrl && <button onClick={save}>PNG 저장</button>}</div></div>
+            {loading ? <div className="result-paper">글자 없는 배경을 만들고 있습니다.</div> : imageUrl ? <>
+              <div className="design-help">글자를 끌어 이동하고, 모서리 점을 끌어 크기를 조절하세요.</div>
+              <div className="image-v3-preview design-canvas" ref={previewRef} onPointerMove={move} onPointerUp={end} onPointerCancel={end}>
+                <img src={imageUrl} alt="편집할 이미지" />
+                {textLayer("title", title, titleLayer, titleRef)}
+                {textLayer("subtitle", subtitle, subLayer, subtitleRef)}
+              </div>
+            </> : <div className="result-paper">배경을 만들거나 내 이미지를 올려 시작하세요.</div>}
+          </section>
+        </div>
+      </section>
+    </main>
+  );
 }
