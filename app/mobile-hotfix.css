@@ -9,11 +9,14 @@
   .v2-global-content,.v2-main,.workspace-main,.image-studio-main{width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important}
   .v2-global-content{overflow-x:hidden}
 
-  .v2-mobile-nav{position:fixed;z-index:100;left:0;right:0;bottom:0;height:72px;padding:7px max(8px,env(safe-area-inset-right)) calc(7px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr));align-items:center;background:rgba(255,255,255,.97);border-top:1px solid var(--v2-line);box-shadow:0 -8px 28px rgba(20,33,28,.08);backdrop-filter:blur(16px)}
+  .v2-mobile-nav{position:fixed;z-index:100;left:0;right:0;bottom:0;height:72px;padding:7px max(8px,env(safe-area-inset-right)) calc(7px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));align-items:center;background:rgba(255,255,255,.97);border-top:1px solid var(--v2-line);box-shadow:0 -8px 28px rgba(20,33,28,.08);backdrop-filter:blur(16px)}
   .v2-mobile-nav a{min-width:0;height:54px;border-radius:13px;display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#7a847f;text-decoration:none;font-weight:750}
   .v2-mobile-nav a span{display:block;font-size:19px;line-height:1}
   .v2-mobile-nav a small{display:block;font-size:11px;line-height:1.1;white-space:nowrap}
   .v2-mobile-nav a.active{background:var(--v2-green2);color:var(--v2-green)}
+
+  .ws3-brand strong{font-size:0}
+  .ws3-brand strong::after{content:"사역파트너";font-size:19px}
 
   .home-v2-page{display:block!important;width:100%!important;max-width:none!important;margin:0!important;padding:20px 18px 40px!important;overflow:hidden}
   .home-v2-top{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px}
