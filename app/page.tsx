@@ -65,7 +65,7 @@ export default function Home() {
           <a className="active" href="/"><span>⌂</span>홈</a>
           <a href="/projects"><span>▣</span>프로젝트</a>
           <a href="/workspace"><span>▤</span>작업공간</a>
-          <a href="/workspace"><span>♲</span>변환센터</a>
+          <a href="/transform"><span>♲</span>변환센터</a>
           <a href="/file-analysis"><span>▧</span>자료실</a>
           <a href="/roadmap"><span>⌂</span>내 교회</a>
           <a href="/workspace"><span>⚙</span>설정</a>
