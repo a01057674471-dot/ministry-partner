@@ -8,6 +8,7 @@ import "./transform-center.css";
 import "./library.css";
 import "./account-cloud.css";
 import "./product-upgrades.css";
+import "./v2.css";
 import CloudSyncBridge from "./components/CloudSyncBridge";
 
 export const metadata: Metadata = {
