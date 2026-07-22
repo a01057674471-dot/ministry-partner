@@ -5,13 +5,9 @@ import { usePathname } from "next/navigation";
 
 const items = [
   ["/", "홈", "⌂"],
-  ["/projects", "프로젝트", "▣"],
-  ["/workspace", "작업공간", "▤"],
-  ["/research", "연구", "⌕"],
-  ["/worship", "찬양 플래너", "♫"],
-  ["/transform", "변환센터", "↻"],
-  ["/image-content", "이미지 스튜디오", "◫"],
-  ["/library", "사역 자료실", "▧"],
+  ["/workspace", "작업", "▤"],
+  ["/research", "말씀 연구", "⌕"],
+  ["/image-content", "AI 디자인", "◫"],
   ["/roadmap", "사역 로드맵", "◇"],
   ["/pricing", "요금제", "₩"],
   ["/account", "내 정보", "○"],
@@ -21,7 +17,7 @@ const mobileItems = [
   ["/", "홈", "⌂"],
   ["/workspace", "작업", "▤"],
   ["/research", "연구", "⌕"],
-  ["/roadmap", "사역 로드맵", "◇"],
+  ["/image-content", "디자인", "◫"],
   ["/account", "내 정보", "○"],
 ];
 
@@ -44,5 +40,3 @@ export default function V2Sidebar() {
     </>
   );
 }
-
-// Deployment retry marker: 2026-07-23
