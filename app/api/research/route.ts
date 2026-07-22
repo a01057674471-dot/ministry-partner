@@ -62,49 +62,57 @@ function normalizeResult(raw: UnknownRecord, requestedPassage: string) {
   };
 }
 
-function parseJson(text: string): UnknownRecord {
-  const cleaned = text.trim().replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "");
-  try {
-    const parsed = JSON.parse(cleaned);
-    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) return parsed as UnknownRecord;
-  } catch {
-    const start = cleaned.indexOf("{");
-    const end = cleaned.lastIndexOf("}");
-    if (start >= 0 && end > start) {
-      const parsed = JSON.parse(cleaned.slice(start, end + 1));
-      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) return parsed as UnknownRecord;
-    }
-  }
-  throw new Error("연구 결과 형식을 정리하지 못했습니다. 다시 시도해 주세요.");
+function friendlyError(error: unknown) {
+  const message = error instanceof Error ? error.message : "알 수 없는 오류가 발생했습니다.";
+  const lower = message.toLowerCase();
+  if (lower.includes("429") || lower.includes("quota") || lower.includes("insufficient_quota")) return "OpenAI API 사용 한도 또는 결제 상태를 확인해 주세요.";
+  if (lower.includes("401") || lower.includes("api key") || lower.includes("authentication")) return "OpenAI API 키가 올바르지 않거나 만료되었습니다.";
+  if (lower.includes("timeout") || lower.includes("timed out") || lower.includes("abort")) return "연구 시간이 초과되었습니다. 본문 범위를 조금 줄여 다시 시도해 주세요.";
+  if (lower.includes("model")) return "현재 연구 모델을 사용할 수 없습니다. 잠시 후 다시 시도해 주세요.";
+  return "연구 결과를 만드는 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.";
 }
 
 export async function GET() {
-  return NextResponse.json({ success: true, message: "API is running" });
+  return NextResponse.json({ success: true, message: "Research API is running" });
 }
 
 export async function POST(request: Request) {
   try {
     const key = process.env.OPENAI_API_KEY;
-    if (!key) return NextResponse.json({ success: false, error: "OpenAI API 키가 설정되지 않았습니다." }, { status: 500 });
+    if (!key) return NextResponse.json({ success: false, error: "OpenAI API 키가 설정되지 않았습니다." }, { status: 503 });
 
     const body = await request.json();
     const passage = typeof body?.passage === "string" ? body.passage.trim() : "";
     if (!passage) return NextResponse.json({ success: false, error: "본문을 입력해 주세요." }, { status: 400 });
+    if (passage.length > 200) return NextResponse.json({ success: false, error: "본문 입력은 200자 이하로 줄여 주세요." }, { status: 400 });
 
-    const client = new OpenAI({ apiKey: key });
-    const response = await client.responses.create({
-      model: "gpt-5-mini",
-      instructions: "당신은 목회자의 심층 본문 연구를 돕는 성경해석 조교입니다. 건강한 복음주의 개신교 범위 안에서 균형 있게 설명하세요. 견해 차이를 비교하고, 확인하지 못한 책·페이지·직접 인용·URL은 만들지 마세요. 반드시 JSON 객체 하나만 출력하세요.",
-      input: `다음 본문을 심층 연구하세요: ${passage}\n\n키: passage, summary, historicalBackground, author, audience, literaryContext, structure, keyThemes, exegesis, originalLanguage, canonicalConnections, theologicalPerspectives, application, cautions, sources, furtherStudy.\n배열 객체 구조: exegesis={section, explanation, evidence}, originalLanguage={word, transliteration, grammar, meaning, caution}, canonicalConnections={reference, connection}, theologicalPerspectives={view, strengths, cautions}, sources={title, authorOrOrganization, type, url, note}. 공개 URL을 확실히 모르면 url은 빈 문자열로 두세요.`,
+    const client = new OpenAI({ apiKey: key, timeout: 52000, maxRetries: 1 });
+    const model = process.env.OPENAI_RESEARCH_MODEL || "gpt-4.1-mini";
+
+    const completion = await client.chat.completions.create({
+      model,
+      response_format: { type: "json_object" },
+      temperature: 0.25,
+      max_tokens: 6500,
+      messages: [
+        {
+          role: "system",
+          content: "당신은 목회자의 심층 본문 연구를 돕는 성경해석 조교입니다. 건강한 복음주의 개신교 범위 안에서 균형 있게 설명하세요. 원어 관찰과 AI의 해석을 구분하고, 견해 차이를 비교하세요. 확인하지 못한 책, 페이지, 직접 인용, URL을 만들지 마세요. 반드시 유효한 JSON 객체 하나만 출력하세요.",
+        },
+        {
+          role: "user",
+          content: `다음 본문을 심층 연구하세요: ${passage}\n\n반드시 다음 키를 모두 포함하세요: passage, summary, historicalBackground, author, audience, literaryContext, structure, keyThemes, exegesis, originalLanguage, canonicalConnections, theologicalPerspectives, application, cautions, sources, furtherStudy.\n배열 객체 구조: exegesis={section, explanation, evidence}, originalLanguage={word, transliteration, grammar, meaning, caution}, canonicalConnections={reference, connection}, theologicalPerspectives={view, strengths, cautions}, sources={title, authorOrOrganization, type, url, note}.\n공개 URL을 확실히 아는 경우에만 넣고, 확실하지 않으면 url은 빈 문자열로 두세요. 분량은 모바일에서 읽기 좋게 각 항목을 간결하게 작성하세요.`,
+        },
+      ],
     });
 
-    const raw = parseJson(response.output_text);
-    return NextResponse.json({ success: true, result: normalizeResult(raw, passage) });
+    const content = completion.choices[0]?.message?.content;
+    if (!content) throw new Error("empty response");
+    const parsed = JSON.parse(content) as UnknownRecord;
+
+    return NextResponse.json({ success: true, result: normalizeResult(parsed, passage) });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "알 수 없는 오류가 발생했습니다.";
-    const friendly = message.includes("429") || message.toLowerCase().includes("quota")
-      ? "OpenAI API 사용 한도 또는 결제 상태를 확인해 주세요."
-      : message;
-    return NextResponse.json({ success: false, error: friendly }, { status: 500 });
+    console.error("[api/research]", error);
+    return NextResponse.json({ success: false, error: friendlyError(error) }, { status: 500 });
   }
 }
