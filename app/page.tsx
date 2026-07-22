@@ -41,7 +41,6 @@ export default function Home() {
     supabase.auth.getUser().then(({ data }) => {
       const userName = data.user?.user_metadata?.full_name || data.user?.user_metadata?.name;
       if (!userName) return;
-
       const cleanName = displayName(userName);
       setName(cleanName);
       window.localStorage.setItem("ministry-partner-name", cleanName);
@@ -51,7 +50,6 @@ export default function Home() {
   function routeRequest(value = request) {
     const text = value.trim();
     if (!text) return;
-
     if (/찬양|복음성가|찬송가|콘티/.test(text)) return router.push(`/worship?request=${encodeURIComponent(text)}`);
     if (/로드맵|비전|3년|5년|10년/.test(text)) return router.push(`/roadmap?request=${encodeURIComponent(text)}`);
     if (/설교|강해|말씀/.test(text)) return router.push(`/sermon?request=${encodeURIComponent(text)}`);
@@ -61,7 +59,6 @@ export default function Home() {
     if (/회의/.test(text)) return router.push(`/meeting?request=${encodeURIComponent(text)}`);
     if (/문서|기획서|보고서|교육안/.test(text)) return router.push(`/document?request=${encodeURIComponent(text)}`);
     if (/성경|본문|\d+장|\d+절/.test(text)) return router.push(`/research?passage=${encodeURIComponent(text)}`);
-
     router.push(`/workspace?request=${encodeURIComponent(text)}`);
   }
 
@@ -75,58 +72,35 @@ export default function Home() {
   return (
     <main className="partner-dashboard">
       <section className="partner-dashboard-main">
-        <header className="partner-dashboard-greeting">
-          <div>
-            <p>안녕하세요, {name}님</p>
-            <h1>오늘의 사역을 <em>더 가볍고 깊게</em> 준비하세요.</h1>
-            <span>반복되는 준비와 정리를 덜어 하나님과 사람에게 더 집중하도록 돕습니다.</span>
-          </div>
+        <header className="partner-home-brand">
+          <Link href="/" aria-label="사역파트너 홈" className="partner-home-logo">
+            <span aria-hidden="true">✦</span>
+            <div><strong>사역파트너</strong><small>MINISTRY PARTNER</small></div>
+          </Link>
+          <p>안녕하세요, {name}님</p>
         </header>
 
-        <section className="partner-tip" style={{ marginTop: 24, padding: "22px 24px", borderRadius: 16 }}>
+        <section className="partner-tip partner-principle" style={{ marginTop: 22, padding: "22px 24px", borderRadius: 16 }}>
           <b>사역파트너의 원칙</b>
           <h3 style={{ fontSize: 22, marginBottom: 8 }}>사역을 대신하지 않습니다. 사역에 더 집중하도록 돕습니다.</h3>
           <p style={{ fontSize: 13, margin: 0 }}>사역의 중심은 하나님입니다. 말씀과 기도, 그리고 사역자의 분별을 대신하지 않습니다.</p>
         </section>
 
         <form className="partner-command" onSubmit={submit}>
-          <div className="partner-command-label">
-            <span>오늘 무엇을 준비하시나요?</span>
-            <small>한 문장으로 편하게 적어주세요</small>
-          </div>
-          <textarea
-            value={request}
-            onChange={(event) => setRequest(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" && !event.shiftKey) {
-                event.preventDefault();
-                routeRequest();
-              }
-            }}
-            placeholder="예: 누가복음 15장으로 새가족 대상 20분 설교를 준비해줘"
-          />
-          <div className="partner-command-bottom">
-            <span>Enter로 실행 · Shift+Enter로 줄바꿈</span>
-            <button type="submit">준비 시작하기 <b>→</b></button>
-          </div>
+          <div className="partner-command-label"><span>오늘 무엇을 준비하시나요?</span><small>한 문장으로 편하게 적어주세요</small></div>
+          <textarea value={request} onChange={(event) => setRequest(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); routeRequest(); } }} placeholder="예: 누가복음 15장으로 새가족 대상 20분 설교를 준비해줘" />
+          <div className="partner-command-bottom"><span>Enter로 실행 · Shift+Enter로 줄바꿈</span><button type="submit">준비 시작하기 <b>→</b></button></div>
         </form>
 
-        <div className="partner-example-row">
-          <b>추천 요청</b>
-          {examples.map((item) => (
-            <button key={item} type="button" onClick={() => setRequest(item)}>{item}</button>
-          ))}
-        </div>
+        <div className="partner-example-row"><b>추천 요청</b>{examples.map((item) => <button key={item} type="button" onClick={() => setRequest(item)}>{item}</button>)}</div>
 
         <section className="partner-section">
-          <div className="partner-section-title">
-            <div><small>WORK</small><h2>사역 작업</h2></div>
-            <Link href="/workspace">전체 작업 보기 →</Link>
-          </div>
+          <div className="partner-section-title"><div><small>WORK</small><h2>사역 작업</h2></div><Link href="/workspace">전체 작업 보기 →</Link></div>
           <div className="partner-quick-grid">
-            <Link href="/sermon"><span>책</span><strong>설교</strong><small>본문 연구부터 설교문까지</small><b>→</b></Link>
+            <Link href="/research"><span>말씀</span><strong>말씀 연구</strong><small>본문의 문맥과 핵심을 깊이 살펴보기</small><b>→</b></Link>
+            <Link href="/sermon"><span>설교</span><strong>설교</strong><small>본문 연구부터 설교문까지</small><b>→</b></Link>
             <Link href="/prayer"><span>기도</span><strong>대표기도</strong><small>예배 상황에 맞는 기도문</small><b>→</b></Link>
-            <Link href="/worship"><span>찬양</span><strong>찬양 추천</strong><small>본문과 예배 흐름에 맞게</small><b>→</b></Link>
+            <Link href="/worship"><span>찬양</span><strong>찬양 플래너</strong><small>본문과 예배 흐름에 맞게</small><b>→</b></Link>
             <Link href="/document"><span>문서</span><strong>문서</strong><small>기획서·보고서·교육안</small><b>→</b></Link>
             <Link href="/image-content"><span>디자인</span><strong>이미지</strong><small>포스터·주보·썸네일</small><b>→</b></Link>
             <Link href="/youtube-shorts"><span>영상</span><strong>영상</strong><small>쇼츠·릴스 대본과 구성</small><b>→</b></Link>
@@ -134,24 +108,8 @@ export default function Home() {
         </section>
 
         <section className="partner-section">
-          <div className="partner-section-title partner-project-title">
-            <div><small>RECENT</small><h2>최근 작업</h2></div>
-            <div className="partner-filter-row">
-              {["전체", "설교", "기도", "디자인", "영상", "문서"].map((item) => (
-                <button key={item} type="button" className={focus === item ? "active" : ""} onClick={() => setFocus(item)}>{item}</button>
-              ))}
-            </div>
-          </div>
-          <div className="partner-recent-grid">
-            {visibleProjects.map(([title, type, progress, time], index) => (
-              <Link href="/projects" key={String(title)}>
-                <div className={`partner-thumb thumb-${(index % 5) + 1}`}><span>{type}</span><b>{progress}%</b></div>
-                <strong>{title}</strong>
-                <small>마지막 수정 {time}</small>
-                <i><u style={{ width: `${progress}%` }} /></i>
-              </Link>
-            ))}
-          </div>
+          <div className="partner-section-title partner-project-title"><div><small>RECENT</small><h2>최근 작업</h2></div><div className="partner-filter-row">{["전체", "설교", "기도", "디자인", "영상", "문서"].map((item) => <button key={item} type="button" className={focus === item ? "active" : ""} onClick={() => setFocus(item)}>{item}</button>)}</div></div>
+          <div className="partner-recent-grid">{visibleProjects.map(([title, type, progress, time], index) => <Link href="/projects" key={String(title)}><div className={`partner-thumb thumb-${(index % 5) + 1}`}><span>{type}</span><b>{progress}%</b></div><strong>{title}</strong><small>마지막 수정 {time}</small><i><u style={{ width: `${progress}%` }} /></i></Link>)}</div>
         </section>
       </section>
     </main>
