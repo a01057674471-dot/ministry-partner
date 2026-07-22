@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const items = [
@@ -31,12 +32,12 @@ export default function V2Sidebar() {
   return (
     <>
       <aside className="v2-sidebar">
-        <a href="/" className="v2-brand"><span className="v2-brand-mark">MP</span><span><strong>목회파트너</strong><small>사역을 함께 준비하는 동역자</small></span></a>
-        <nav>{items.map(([href,label,icon]) => <a key={href} href={href} className={isActive(pathname, href) ? "active" : ""}><span>{icon}</span>{label}</a>)}</nav>
-        <div className="v2-sidebar-bottom"><p>말씀과 성도를 섬기는 일에<br/>더 집중할 수 있도록 돕습니다.</p><a href="/account">내 계정 열기 →</a></div>
+        <Link href="/" className="v2-brand"><span className="v2-brand-mark">MP</span><span><strong>목회파트너</strong><small>사역을 함께 준비하는 동역자</small></span></Link>
+        <nav>{items.map(([href,label,icon]) => <Link key={href} href={href} aria-current={isActive(pathname, href) ? "page" : undefined} className={isActive(pathname, href) ? "active" : ""}><span>{icon}</span>{label}</Link>)}</nav>
+        <div className="v2-sidebar-bottom"><p>말씀과 성도를 섬기는 일에<br/>더 집중할 수 있도록 돕습니다.</p><Link href="/account">내 계정 열기 →</Link></div>
       </aside>
       <nav className="v2-mobile-nav" aria-label="모바일 주요 메뉴">
-        {mobileItems.map(([href,label,icon]) => <a key={href} href={href} className={isActive(pathname, href) ? "active" : ""}><span>{icon}</span><small>{label}</small></a>)}
+        {mobileItems.map(([href,label,icon]) => <Link key={href} href={href} prefetch aria-current={isActive(pathname, href) ? "page" : undefined} className={isActive(pathname, href) ? "active" : ""}><span>{icon}</span><small>{label}</small></Link>)}
       </nav>
     </>
   );
