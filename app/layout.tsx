@@ -9,6 +9,7 @@ import "./library.css";
 import "./account-cloud.css";
 import "./product-upgrades.css";
 import "./v2.css";
+import "./v2-global.css";
 import CloudSyncBridge from "./components/CloudSyncBridge";
 import GlobalChrome from "./components/GlobalChrome";
 
