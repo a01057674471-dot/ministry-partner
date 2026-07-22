@@ -43,6 +43,7 @@ export async function POST(request: Request) {
     const type = typeof body?.type === "string" ? body.type : "card";
     const style = typeof body?.style === "string" ? body.style : "photo";
     const mood = typeof body?.mood === "string" ? body.mood : "premium";
+    const quality = body?.quality === "high" ? "high" : "medium";
 
     if (!prompt) return NextResponse.json({ success: false, error: "만들 이미지 내용을 입력해 주세요." }, { status: 400 });
     if (prompt.length > 5000) return NextResponse.json({ success: false, error: "이미지 설명은 5,000자 이하로 줄여 주세요." }, { status: 400 });
@@ -79,18 +80,18 @@ ABSOLUTE EXCLUSIONS
 
 Return one clean finished image only.`.trim();
 
-    const client = new OpenAI({ apiKey, timeout: 180000, maxRetries: 1 });
+    const client = new OpenAI({ apiKey, timeout: quality === "high" ? 180000 : 120000, maxRetries: 0 });
     const response = await client.images.generate({
       model: "gpt-image-1",
       prompt: expandedPrompt,
       size,
-      quality: "high",
+      quality,
     });
 
     const image = response.data?.[0];
     if (!image?.b64_json) return NextResponse.json({ success: false, error: "생성된 이미지 데이터가 비어 있습니다." }, { status: 502 });
 
-    return NextResponse.json({ success: true, imageUrl: `data:image/png;base64,${image.b64_json}` });
+    return NextResponse.json({ success: true, quality, imageUrl: `data:image/png;base64,${image.b64_json}` });
   } catch (error) {
     const message = error instanceof Error ? error.message : "이미지 생성 오류";
     console.error("[api/generate-image]", message);
