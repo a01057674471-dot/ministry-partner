@@ -9,7 +9,7 @@ type ModeConfig = { id: Mode; icon: string; title: string; desc: string; href: s
 const modes: ModeConfig[] = [
   { id: "sermon", icon: "🎤", title: "설교 준비", desc: "본문 연구부터 개요·적용·설교문까지", href: "/sermon", placeholder: "예: 사사기 10장 1-16절 / 청년부 / 20분 / 주일예배 / 회개와 하나님의 긍휼" },
   { id: "prayer", icon: "🙏", title: "기도문 작성", desc: "예배와 상황에 맞는 기도문", href: "/prayer", placeholder: "추가로 꼭 포함할 내용이 있다면 적어 주세요." },
-  { id: "worship", icon: "🎵", title: "찬양 플래너", desc: "본문·주제·예배 흐름에 맞는 찬양 추천", href: "/worship", placeholder: "추가 요청: 찬송가 중심, 청년예배 분위기, 결단찬양은 잔잔하게 등" },
+  { id: "worship", icon: "🎵", title: "찬양 플래너", desc: "본문·주제·예배 종류에 맞는 찬양 추천", href: "/worship", placeholder: "" },
   { id: "roadmap", icon: "🧭", title: "사역 로드맵", desc: "현재 사역에서 3년·5년 실행계획까지", href: "/roadmap", placeholder: "추가로 반영할 사역 환경이나 요청을 적어 주세요." },
   { id: "document", icon: "📄", title: "사역 문서 제작", desc: "기획서·운영안·교육안·보고서 작성", href: "/document", placeholder: "예: 9월 새생명축제 기획서 / 대상 100명 / 예산 300만원 / 준비기간 8주" },
   { id: "meeting", icon: "📝", title: "회의 정리", desc: "회의 메모를 결정사항과 할 일로 정리", href: "/meeting", placeholder: "회의 내용을 그대로 붙여넣으세요. 담당자와 기한이 없으면 미정으로 정리합니다." },
@@ -44,12 +44,9 @@ const prayerQuestions = [
 ];
 
 const worshipQuestions = [
-  { label: "예배 또는 모임", placeholder: "예: 주일예배, 청년예배, 수련회, 기도회" },
-  { label: "설교 본문 또는 제목", placeholder: "예: 고린도후서 12:7-10 / 약할 때 강함 되시는 하나님" },
-  { label: "핵심 주제", placeholder: "예: 은혜, 고난, 위로, 회개, 감사, 헌신, 선교" },
-  { label: "찬양이 필요한 순서", placeholder: "예: 예배 시작 2곡, 말씀 전 1곡, 결단 1곡" },
-  { label: "회중과 분위기", placeholder: "예: 전 연령 / 익숙한 곡 중심 / 잔잔하게 시작해 힘 있게" },
-  { label: "선호 범위", placeholder: "예: 찬송가 포함, 복음성가 중심, 최근 곡과 익숙한 곡 혼합" },
+  { label: "본문", placeholder: "예: 시편 23편 / 요한복음 15장" },
+  { label: "주제", placeholder: "예: 은혜, 위로, 회개, 감사, 헌신" },
+  { label: "예배 종류", placeholder: "예: 주일예배, 청년예배, 수련회, 기도회" },
 ];
 
 export default function WorkspaceTool({ fixedMode }: { fixedMode?: Mode }) {
@@ -79,13 +76,13 @@ export default function WorkspaceTool({ fixedMode }: { fixedMode?: Mode }) {
   function buildInput() {
     if (mode === "roadmap") return roadmapQuestions.map((q, i) => `${i + 1}. ${q}\n답변: ${roadmapAnswers[i].trim() || "미입력"}`).join("\n\n") + (topic.trim() ? `\n\n추가 요청:\n${topic.trim()}` : "");
     if (mode === "prayer") return prayerQuestions.map((q, i) => `${q.label}: ${prayerAnswers[i].trim() || "미입력"}`).join("\n") + (topic.trim() ? `\n추가 요청: ${topic.trim()}` : "");
-    if (mode === "worship") return worshipQuestions.map((q, i) => `${q.label}: ${worshipAnswers[i].trim() || "미입력"}`).join("\n") + (topic.trim() ? `\n추가 요청: ${topic.trim()}` : "");
+    if (mode === "worship") return `${worshipQuestions.map((q, i) => `${q.label}: ${worshipAnswers[i].trim() || "미입력"}`).join("\n")}\n\n결과는 반드시 다음 순서로 구성하세요: 시작 찬양, 경배, 말씀 전, 결단, 축도 후.`;
     return topic.trim();
   }
 
   async function generate() {
     const input = buildInput();
-    const empty = (mode === "roadmap" && roadmapAnswers.every((a) => !a.trim()) && !topic.trim()) || (mode === "prayer" && prayerAnswers.every((a) => !a.trim()) && !topic.trim()) || (mode === "worship" && worshipAnswers.every((a) => !a.trim()) && !topic.trim());
+    const empty = (mode === "roadmap" && roadmapAnswers.every((a) => !a.trim()) && !topic.trim()) || (mode === "prayer" && prayerAnswers.every((a) => !a.trim()) && !topic.trim()) || (mode === "worship" && worshipAnswers.every((a) => !a.trim()));
     if (!input || empty) return setError("안내된 항목 중 아는 내용부터 입력해 주세요.");
     setLoading(true); setError(""); setResult("");
     try {
@@ -110,7 +107,7 @@ export default function WorkspaceTool({ fixedMode }: { fixedMode?: Mode }) {
     <aside className="workspace-sidebar"><a href="/" className="brand"><span className="brand-mark">M</span><span>사역파트너</span></a><p className="sidebar-label">PARTNER WORKSPACE</p><nav className="workspace-nav">{modes.map((item)=><a key={item.id} className={mode===item.id?"active":""} href={item.href}><span>{item.icon}</span><div><strong>{item.title}</strong><small>{item.desc}</small></div></a>)}</nav><a className="sidebar-link" href="/research">📖 심층 성경 본문 연구</a></aside>
     <section className="workspace-main"><header className="workspace-head"><div><div className="eyebrow">MINISTRY PARTNER</div><h1>{active.icon} {active.title}</h1><p>{active.desc}</p></div><a className="button button-secondary" href="/">홈으로</a></header>
       <div className="workspace-grid"><section className="workspace-editor">
-        {mode==="roadmap" ? <div className="question-form"><div className="notice">개인, 교회, 선교단체, 부서 사역 모두 사용할 수 있습니다. 3년과 5년 목표를 함께 설계합니다.</div>{roadmapQuestions.map((q,i)=><label key={q}><strong>{i+1}. {q}</strong><textarea rows={2} value={roadmapAnswers[i]} onChange={(e)=>setRoadmapAnswers(roadmapAnswers.map((v,n)=>n===i?e.target.value:v))} placeholder="구체적으로 적을수록 실행 가능한 로드맵이 만들어집니다."/></label>)}<textarea value={topic} onChange={(e)=>setTopic(e.target.value)} placeholder={active.placeholder}/></div> : mode==="prayer" ? renderFields(prayerQuestions, prayerAnswers, setPrayerAnswers) : mode==="worship" ? renderFields(worshipQuestions, worshipAnswers, setWorshipAnswers) : <>{mode==="file"&&<label className="upload-box">파일 선택<input type="file" accept=".txt,.md,.csv,.json" onChange={onFile}/></label>}<textarea value={topic} onChange={(e)=>setTopic(e.target.value)} placeholder={active.placeholder}/></>}
+        {mode==="roadmap" ? <div className="question-form"><div className="notice">개인, 교회, 선교단체, 부서 사역 모두 사용할 수 있습니다. 3년과 5년 목표를 함께 설계합니다.</div>{roadmapQuestions.map((q,i)=><label key={q}><strong>{i+1}. {q}</strong><textarea rows={2} value={roadmapAnswers[i]} onChange={(e)=>setRoadmapAnswers(roadmapAnswers.map((v,n)=>n===i?e.target.value:v))} placeholder="구체적으로 적을수록 실행 가능한 로드맵이 만들어집니다."/></label>)}<textarea value={topic} onChange={(e)=>setTopic(e.target.value)} placeholder={active.placeholder}/></div> : mode==="prayer" ? renderFields(prayerQuestions, prayerAnswers, setPrayerAnswers) : mode==="worship" ? <div className="question-form"><div className="notice">본문, 주제, 예배 종류만 입력하면 예배 흐름에 맞춰 추천합니다.</div>{worshipQuestions.map((q,i)=><label key={q.label}><strong>{q.label}</strong><input value={worshipAnswers[i]} onChange={(e)=>setWorshipAnswers(worshipAnswers.map((v,n)=>n===i?e.target.value:v))} placeholder={q.placeholder}/></label>)}</div> : <>{mode==="file"&&<label className="upload-box">파일 선택<input type="file" accept=".txt,.md,.csv,.json" onChange={onFile}/></label>}<textarea value={topic} onChange={(e)=>setTopic(e.target.value)} placeholder={active.placeholder}/></>}
         <div className="editor-actions"><button className="button button-primary" onClick={generate} disabled={loading}>{loading?"파트너가 준비 중…":"파트너에게 요청하기"}</button><button className="button button-secondary" onClick={clearAll}>비우기</button></div>{error&&<div className="notice error">{error}</div>}
       </section><section className="workspace-result"><div className="result-toolbar"><strong>결과</strong><div className="result-actions"><button onClick={copyResult} disabled={!result}>복사</button><button onClick={saveResult} disabled={!result}>보관함 저장</button><button onClick={downloadDocument} disabled={!result}>문서 저장</button><button onClick={shareResult} disabled={!result}>공유</button></div></div><div className="result-paper">{result||"내용을 입력하고 ‘파트너에게 요청하기’를 누르면 결과가 여기에 나타납니다."}</div></section></div>
       {saved.length>0&&<section className="saved-section"><h2>최근 저장한 작업</h2><div className="saved-grid">{saved.map((item)=><button key={item.id} onClick={()=>{setMode(item.mode);setTopic(item.title);setResult(item.result)}}><strong>{item.title}</strong><span>{item.createdAt}</span></button>)}</div></section>}
