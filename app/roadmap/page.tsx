@@ -7,7 +7,7 @@ export default function RoadmapPage() {
       <V2Sidebar />
       <section className="v2-main">
         <div className="v2-page-head">
-          <div><div className="eyebrow">MY CHURCH</div><h1>내 교회</h1><p>교회 현황을 정리하고 비전과 실행계획을 한곳에서 준비합니다.</p></div>
+          <div><div className="eyebrow">CHURCH ROADMAP</div><h1>교회 로드맵</h1><p>교회의 현재를 돌아보고 비전과 실행계획을 차근차근 세웁니다.</p></div>
         </div>
         <WorkspaceTool fixedMode="roadmap" />
       </section>
