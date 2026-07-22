@@ -81,7 +81,6 @@ export default function Home() {
             <h1>오늘의 사역을 <em>더 가볍고 깊게</em> 준비하세요.</h1>
             <span>반복되는 준비와 정리를 덜어 하나님과 사람에게 더 집중하도록 돕습니다.</span>
           </div>
-          <Link href="/workspace" className="partner-new-project">작업 시작하기</Link>
         </header>
 
         <section className="partner-tip" style={{ marginTop: 24, padding: "22px 24px", borderRadius: 16 }}>
