@@ -44,3 +44,5 @@ export default function V2Sidebar() {
     </>
   );
 }
+
+// Deployment retry marker: 2026-07-23
