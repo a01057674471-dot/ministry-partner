@@ -68,14 +68,14 @@ export default function Home() {
           <a href="/transform"><span>♲</span>변환센터</a>
           <a href="/library"><span>▧</span>자료실</a>
           <a href="/roadmap"><span>⌂</span>내 교회</a>
-          <a href="/workspace"><span>⚙</span>설정</a>
+          <a href="/account"><span>⚙</span>계정·클라우드</a>
         </nav>
-        <div className="mp-sidebar-bottom"><div className="mp-profile"><span className="mp-avatar">한</span><div><strong>{name}</strong><small>화성아가페교회</small></div><b>⌄</b></div><a className="mp-help" href="mailto:support@example.com">?　도움말 & 문의</a></div>
+        <div className="mp-sidebar-bottom"><a className="mp-profile" href="/account"><span className="mp-avatar">한</span><div><strong>{name}</strong><small>화성아가페교회</small></div><b>⌄</b></a><a className="mp-help" href="mailto:support@example.com">?　도움말 & 문의</a></div>
       </aside>
 
       <section className="mp-main">
         <div className="mp-content">
-          <header className="mp-topline"><div /><div className="mp-top-icons">♧ <span className="mp-mini-avatar">한</span></div></header>
+          <header className="mp-topline"><div /><div className="mp-top-icons">♧ <a href="/account" className="mp-mini-avatar">한</a></div></header>
           <section className="mp-hero">
             <p>안녕하세요, {name} 👋</p><h1>오늘 <em>어떤 사역</em>을 함께 준비할까요?</h1>
             <form className="mp-command" onSubmit={submit}><textarea value={request} onChange={(e) => setRequest(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); routeRequest(); } }} placeholder="무엇을 도와드릴까요? 자유롭게 입력하세요." /><div className="mp-command-actions"><div><button type="button" aria-label="파일 첨부">⌕</button><button type="button" aria-label="이미지 첨부">▧</button><button type="button" aria-label="음성 입력">♩</button></div><button className="mp-submit" type="submit">파트너에게 요청하기　→</button></div></form>
