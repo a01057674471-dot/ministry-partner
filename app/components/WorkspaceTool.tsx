@@ -104,6 +104,18 @@ export default function WorkspaceTool({ fixedMode }: { fixedMode?: Mode }) {
     } finally { setLoading(false); }
   }
 
+  function clearAll() {
+    setTopic(""); setResult(""); setError("");
+    setRoadmapAnswers(roadmapQuestions.map(() => ""));
+    setPrayerAnswers(prayerQuestions.map(() => ""));
+  }
+
+  async function copyResult() {
+    if (!result) return;
+    await navigator.clipboard.writeText(result);
+    alert("결과를 복사했습니다.");
+  }
+
   function saveResult() {
     if (!result) return;
     const item: SavedItem = { id: Date.now(), mode, title: topic.slice(0, 42) || active.title, result, createdAt: new Date().toLocaleString("ko-KR") };
@@ -163,15 +175,15 @@ export default function WorkspaceTool({ fixedMode }: { fixedMode?: Mode }) {
         <div className="workspace-grid">
           <section className="workspace-editor">
             {mode === "roadmap" ? (
-              <div style={{ display: "grid", gap: 14 }}>
+              <div className="question-form">
                 <div className="notice">모든 질문에 답하지 않아도 됩니다. 아는 내용부터 구체적으로 적어 주세요.</div>
-                {roadmapQuestions.map((question, index) => <label key={question} style={{ display: "grid", gap: 7 }}><strong>{index + 1}. {question}</strong><textarea rows={2} value={roadmapAnswers[index]} onChange={(event) => setRoadmapAnswers((current) => current.map((value, i) => i === index ? event.target.value : value))} placeholder="예: 주일 출석 80명, 50대 이상 55%, 청년 10명, 유초등부 12명" /></label>)}
+                {roadmapQuestions.map((question, index) => <label key={question}><strong>{index + 1}. {question}</strong><textarea rows={2} value={roadmapAnswers[index]} onChange={(event) => setRoadmapAnswers((current) => current.map((value, i) => i === index ? event.target.value : value))} placeholder="예: 주일 출석 80명, 50대 이상 55%, 청년 10명, 유초등부 12명" /></label>)}
                 <textarea value={topic} onChange={(event) => setTopic(event.target.value)} placeholder={active.placeholder} />
               </div>
             ) : mode === "prayer" ? (
-              <div style={{ display: "grid", gap: 14 }}>
+              <div className="question-form">
                 <div className="notice">모르는 항목은 비워도 됩니다. 예배 종류와 기도 시간만 입력해도 시작할 수 있습니다.</div>
-                {prayerQuestions.map((question, index) => <label key={question.label} style={{ display: "grid", gap: 7 }}><strong>{question.label}</strong><input value={prayerAnswers[index]} onChange={(event) => setPrayerAnswers((current) => current.map((value, i) => i === index ? event.target.value : value))} placeholder={question.placeholder} /></label>)}
+                {prayerQuestions.map((question, index) => <label key={question.label}><strong>{question.label}</strong><input value={prayerAnswers[index]} onChange={(event) => setPrayerAnswers((current) => current.map((value, i) => i === index ? event.target.value : value))} placeholder={question.placeholder} /></label>)}
                 <textarea value={topic} onChange={(event) => setTopic(event.target.value)} placeholder={active.placeholder} />
               </div>
             ) : (
@@ -183,13 +195,13 @@ export default function WorkspaceTool({ fixedMode }: { fixedMode?: Mode }) {
                 <textarea value={topic} onChange={(event) => setTopic(event.target.value)} placeholder={active.placeholder} />
               </>
             )}
-            <div className="editor-actions"><button className="button button-primary" onClick={generate} disabled={loading}>{loading ? "파트너가 준비 중…" : "파트너에게 요청하기"}</button><button className="button button-secondary" onClick={() => { setTopic(""); setResult(""); setError(""); }}>비우기</button></div>
+            <div className="editor-actions"><button className="button button-primary" onClick={generate} disabled={loading}>{loading ? "파트너가 준비 중…" : "파트너에게 요청하기"}</button><button className="button button-secondary" onClick={clearAll}>비우기</button></div>
             {error && <div className="notice error">{error}</div>}
           </section>
 
           <section className="workspace-result">
-            <div className="result-toolbar"><strong>결과</strong><div><button onClick={() => result && navigator.clipboard.writeText(result)}>복사</button><button onClick={saveResult}>보관함 저장</button><button onClick={downloadDocument}>문서 저장</button><button onClick={shareResult}>공유</button></div></div>
-            <div className="result-paper">{result || "왼쪽 안내에 따라 내용을 입력한 뒤 ‘파트너에게 요청하기’를 눌러 주세요."}</div>
+            <div className="result-toolbar"><strong>결과</strong><div className="result-actions"><button onClick={copyResult} disabled={!result}>복사</button><button onClick={saveResult} disabled={!result}>보관함 저장</button><button onClick={downloadDocument} disabled={!result}>문서 저장</button><button onClick={shareResult} disabled={!result}>공유</button></div></div>
+            <div className="result-paper">{result || "내용을 입력하고 ‘파트너에게 요청하기’를 누르면 결과가 여기에 나타납니다. 결과가 생성된 뒤 복사·저장·공유 버튼을 사용할 수 있습니다."}</div>
           </section>
         </div>
 
