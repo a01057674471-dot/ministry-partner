@@ -1,168 +1,121 @@
 "use client";
 
-import { FormEvent, ReactNode, useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-type Tool = {
-  title: string;
-  description: string;
-  href: string;
-  icon: ReactNode;
-};
-
-const tools: Tool[] = [
-  {
-    title: "성경 연구",
-    description: "본문·배경·원어·신학 자료를 깊이 있게",
-    href: "/research",
-    icon: <BookIcon />,
-  },
-  {
-    title: "설교 준비",
-    description: "본문 연구부터 개요·적용·설교문까지",
-    href: "/sermon",
-    icon: <PenIcon />,
-  },
-  {
-    title: "기도문 작성",
-    description: "예배와 상황에 맞는 기도문",
-    href: "/prayer",
-    icon: <HandsIcon />,
-  },
-  {
-    title: "교회 비전 로드맵",
-    description: "구체적인 질문으로 3년 실행계획 완성",
-    href: "/roadmap",
-    icon: <ChurchIcon />,
-  },
-  {
-    title: "유튜브 쇼츠 제작",
-    description: "유튜브 주소로 쇼츠 기획과 대본 생성",
-    href: "/youtube-shorts",
-    icon: <PlayIcon />,
-  },
-  {
-    title: "파일 분석",
-    description: "문서를 요약하고 필요한 자료로 재구성",
-    href: "/file-analysis",
-    icon: <FileIcon />,
-  },
+const quickTools = [
+  ["설교 준비", "본문 연구부터 설교 작성까지", "/sermon", "📖"],
+  ["본문 연구", "성경을 깊이 연구해요", "/research", "🔎"],
+  ["대표기도", "상황에 맞는 기도문 작성", "/prayer", "🙏"],
+  ["이미지 콘텐츠", "카드뉴스와 썸네일 기획", "/shorts", "🎨"],
+  ["유튜브 → 쇼츠", "유튜브 영상을 쇼츠로 변환", "/youtube-shorts", "▶"],
+  ["문서 작성", "기획서·보고서·교육안 작성", "/document", "📄"],
+  ["회의 정리", "회의 내용을 깔끔하게 정리", "/meeting", "👥"],
+  ["파일 분석", "업로드한 파일을 분석", "/file-analysis", "📁"],
 ];
 
-const suggestions = [
-  "사사기 10장으로 청년부 설교 준비",
-  "요한복음 15장 1-8절을 깊이 연구",
-  "이번 주일예배 3분 대표기도문 작성",
-  "80명 교회의 3년 비전 로드맵 만들기",
+const projects = [
+  ["창세기 22장 설교", "설교", 65, "7분 전", "📖"],
+  ["주일 대표기도", "기도", 80, "1시간 전", "🙏"],
+  ["청년부 카드뉴스", "카드뉴스", 40, "3시간 전", "🎨"],
+  ["유튜브 쇼츠", "쇼츠", 60, "어제", "▶"],
+  ["주보 5월 3주", "주보", 70, "어제", "📄"],
 ];
 
-function getGreeting(hour: number) {
-  if (hour < 12) return "좋은 아침입니다, 목사님.";
-  if (hour < 18) return "좋은 오후입니다, 목사님.";
-  return "좋은 저녁입니다, 목사님.";
-}
+const ministry = [
+  ["수요예배 대표기도", "내일 마감", "D-1", 80, "⛪"],
+  ["주일설교 준비", "3일 후 마감", "D-3", 65, "📖"],
+  ["청년부 모임 준비", "5일 후 마감", "D-5", 40, "👥"],
+  ["찬양팀 연습 자료", "6일 후 마감", "D-6", 20, "♫"],
+];
+
+const examples = ["창세기 22장으로 25분 설교 준비해줘", "이번 주 대표기도 작성해줘", "청년부 카드뉴스 만들어줘", "유튜브 링크로 쇼츠 만들어줘", "회의록 정리해줘"];
 
 export default function Home() {
   const router = useRouter();
   const [request, setRequest] = useState("");
-  const [greeting, setGreeting] = useState("안녕하세요, 목사님.");
+  const [name, setName] = useState("목사님");
 
   useEffect(() => {
-    setGreeting(getGreeting(new Date().getHours()));
+    const saved = window.localStorage.getItem("ministry-partner-name");
+    if (saved) setName(saved);
   }, []);
 
-  function submitRequest(value = request) {
-    const trimmed = value.trim();
-    if (!trimmed) return;
-
-    if (/설교|강해|주일말씀|새벽말씀|수요말씀|메시지.*준비/.test(trimmed)) {
-      router.push(`/sermon?request=${encodeURIComponent(trimmed)}`);
-      return;
-    }
-    if (/대표기도|기도문|헌금기도|개회기도|폐회기도|축도/.test(trimmed)) {
-      router.push(`/prayer?request=${encodeURIComponent(trimmed)}`);
-      return;
-    }
-    if (/유튜브|youtube|youtu\.be/.test(trimmed.toLowerCase())) {
-      router.push(`/youtube-shorts?request=${encodeURIComponent(trimmed)}`);
-      return;
-    }
-    if (/쇼츠|릴스|카드뉴스|썸네일/.test(trimmed)) {
-      router.push(`/shorts?request=${encodeURIComponent(trimmed)}`);
-      return;
-    }
-    if (/비전|로드맵|교회운영|사역계획|중장기계획/.test(trimmed)) {
-      router.push(`/roadmap?request=${encodeURIComponent(trimmed)}`);
-      return;
-    }
-    if (/회의|회의록|결정사항/.test(trimmed)) {
-      router.push(`/meeting?request=${encodeURIComponent(trimmed)}`);
-      return;
-    }
-    if (/기획서|운영안|교육안|보고서|행사계획/.test(trimmed)) {
-      router.push(`/document?request=${encodeURIComponent(trimmed)}`);
-      return;
-    }
-    if (/성경|본문|\d+장|\d+절|로마서|창세기|사사기|시편|복음서|요한복음|마태복음|마가복음|누가복음/.test(trimmed)) {
-      router.push(`/research?passage=${encodeURIComponent(trimmed)}`);
-      return;
-    }
-
-    router.push(`/workspace?request=${encodeURIComponent(trimmed)}`);
+  function routeRequest(value = request) {
+    const text = value.trim();
+    if (!text) return;
+    if (/설교|강해|말씀/.test(text)) return router.push(`/sermon?request=${encodeURIComponent(text)}`);
+    if (/기도|축도/.test(text)) return router.push(`/prayer?request=${encodeURIComponent(text)}`);
+    if (/유튜브|youtube|youtu\.be/i.test(text)) return router.push(`/youtube-shorts?request=${encodeURIComponent(text)}`);
+    if (/쇼츠|릴스|카드뉴스|썸네일|이미지/.test(text)) return router.push(`/shorts?request=${encodeURIComponent(text)}`);
+    if (/회의/.test(text)) return router.push(`/meeting?request=${encodeURIComponent(text)}`);
+    if (/문서|기획서|보고서|교육안|주보/.test(text)) return router.push(`/document?request=${encodeURIComponent(text)}`);
+    if (/성경|본문|\d+장|\d+절/.test(text)) return router.push(`/research?passage=${encodeURIComponent(text)}`);
+    router.push(`/workspace?request=${encodeURIComponent(text)}`);
   }
 
-  function handleSubmit(event: FormEvent) {
+  function submit(event: FormEvent) {
     event.preventDefault();
-    submitRequest();
+    routeRequest();
   }
 
   return (
-    <main className="home-v4">
-      <header className="home-v4-header">
-        <a className="home-v4-brand" href="/" aria-label="목회파트너 홈">
-          <span className="home-v4-logo">M</span>
-          <span><strong>목회파트너</strong><small>목회를 위한 AI 파트너</small></span>
+    <main className="mp-dashboard">
+      <aside className="mp-sidebar">
+        <a className="mp-brand" href="/">
+          <span className="mp-logo">✦</span>
+          <span><strong>목회파트너</strong><small>Pastor&apos;s Partner</small></span>
         </a>
-        <a className="home-v4-all" href="/workspace">전체 기능 <ArrowIcon /></a>
-      </header>
-
-      <section className="home-v4-hero">
-        <p className="home-v4-greeting">{greeting}</p>
-        <h1>오늘은 무엇을<br className="mobile-break" /> 함께 준비할까요?</h1>
-        <p className="home-v4-description">성경 연구부터 설교와 교회 사역까지, 필요한 내용을 파트너에게 편하게 말씀해 주세요.</p>
-
-        <form className="home-v4-command" onSubmit={handleSubmit}>
-          <div className="home-v4-input-wrap">
-            <textarea value={request} onChange={(event) => setRequest(event.target.value)} onKeyDown={(event) => {
-              if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); submitRequest(); }
-            }} placeholder="예: 사사기 10장으로 청년부 20분 설교 준비" rows={2} aria-label="파트너에게 요청할 내용" />
-            <button type="submit" className="home-v4-submit" aria-label="파트너에게 요청하기"><ArrowUpIcon /></button>
-          </div>
-          <div className="home-v4-command-footer"><span>Enter로 바로 요청할 수 있습니다</span><strong>파트너에게 요청하기</strong></div>
-        </form>
-
-        <div className="home-v4-suggestions" aria-label="추천 질문">
-          {suggestions.map((suggestion) => <button type="button" key={suggestion} onClick={() => setRequest(suggestion)}>{suggestion}</button>)}
+        <nav className="mp-nav">
+          <a className="active" href="/"><span>⌂</span>홈</a>
+          <a href="/workspace"><span>▣</span>프로젝트</a>
+          <a href="/workspace"><span>▤</span>작업공간</a>
+          <a href="/workspace"><span>♲</span>변환센터</a>
+          <a href="/file-analysis"><span>▧</span>자료실</a>
+          <a href="/roadmap"><span>⌂</span>내 교회</a>
+          <a href="/workspace"><span>⚙</span>설정</a>
+        </nav>
+        <div className="mp-sidebar-bottom">
+          <div className="mp-profile"><span className="mp-avatar">한</span><div><strong>{name}</strong><small>화성아가페교회</small></div><b>⌄</b></div>
+          <a className="mp-help" href="mailto:support@example.com">?　도움말 & 문의</a>
         </div>
-      </section>
+      </aside>
 
-      <section className="home-v4-quick" aria-labelledby="quick-title">
-        <div className="home-v4-section-head"><div><span>빠른 시작</span><h2 id="quick-title">자주 쓰는 사역 도구</h2></div><p>원하는 항목을 누르면 해당 기능으로 바로 이동합니다.</p></div>
-        <div className="home-v4-grid">
-          {tools.map((tool) => <a className="home-v4-tool" href={tool.href} key={tool.title}><span className="home-v4-tool-icon">{tool.icon}</span><span className="home-v4-tool-copy"><strong>{tool.title}</strong><small>{tool.description}</small></span><ArrowIcon /></a>)}
+      <section className="mp-main">
+        <div className="mp-content">
+          <header className="mp-topline"><div /><div className="mp-top-icons">♧ <span className="mp-mini-avatar">한</span></div></header>
+          <section className="mp-hero">
+            <p>안녕하세요, {name} 👋</p>
+            <h1>오늘 <em>어떤 사역</em>을 함께 준비할까요?</h1>
+            <form className="mp-command" onSubmit={submit}>
+              <textarea value={request} onChange={(e) => setRequest(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); routeRequest(); } }} placeholder="무엇을 도와드릴까요? 자유롭게 입력하세요." />
+              <div className="mp-command-actions"><div><button type="button" aria-label="파일 첨부">⌕</button><button type="button" aria-label="이미지 첨부">▧</button><button type="button" aria-label="음성 입력">♩</button></div><button className="mp-submit" type="submit">파트너에게 요청하기　→</button></div>
+            </form>
+            <div className="mp-example-row"><b>예시</b>{examples.map((item) => <button key={item} onClick={() => setRequest(item)}>{item}</button>)}</div>
+          </section>
+
+          <section className="mp-section">
+            <h2>빠른 시작</h2>
+            <div className="mp-quick-grid">{quickTools.map(([title, desc, href, icon]) => <a href={href} key={title} className="mp-quick-card"><span>{icon}</span><strong>{title}</strong><small>{desc}</small></a>)}</div>
+          </section>
+
+          <section className="mp-section">
+            <div className="mp-section-title"><h2>이번 주 사역</h2><div>‹　›</div></div>
+            <div className="mp-ministry-grid">{ministry.map(([title, due, dday, progress, icon]) => <article key={String(title)}><div className="mp-ministry-head"><span>{icon}</span><div><strong>{title}</strong><small>{due}</small></div></div><b>{dday}</b><div className="mp-progress-label"><span>진행률 {progress}%</span><small>07</small></div><div className="mp-progress"><i style={{width: `${progress}%`}} /></div></article>)}</div>
+          </section>
+
+          <section className="mp-section mp-recent">
+            <div className="mp-section-title"><h2>최근 프로젝트</h2><a href="/workspace">전체 보기　›</a></div>
+            <div className="mp-project-cards">{projects.map(([title, type, progress, time, icon]) => <a href="/workspace" key={String(title)}><div className="mp-project-image"><span>{icon}</span><b>{type}</b></div><strong>{title}</strong><small>수정됨 {time}</small><div className="mp-card-footer"><div className="mp-progress"><i style={{width: `${progress}%`}} /></div><span>☆</span></div></a>)}</div>
+          </section>
         </div>
-      </section>
 
-      <footer className="home-v4-footer"><span>목회파트너</span><p>AI가 작성한 내용은 초안입니다. 성경 해석과 중요한 교회 결정은 반드시 직접 확인해 주세요.</p></footer>
+        <aside className="mp-rightbar">
+          <section className="mp-panel mp-project-list"><div className="mp-panel-head"><h2>프로젝트</h2><button>＋ 새 프로젝트</button></div>{projects.map(([title,,progress,time,icon]) => <a href="/workspace" key={String(title)}><span className="mp-list-icon">{icon}</span><div><strong>{title}</strong><div className="mp-inline-progress"><i style={{width: `${progress}%`}} /></div></div><small>{time}</small><b>☆　⋯</b></a>)}<a className="mp-all" href="/workspace">모든 프로젝트 보기　›</a></section>
+          <section className="mp-panel mp-calendar"><div className="mp-panel-head"><h2>사역 캘린더</h2><a href="/workspace">전체 일정 보기　›</a></div><div className="mp-calendar-week"><span>월<br/>12</span><span>화<br/>13</span><span>수<br/>14</span><span className="today">목<br/>15</span><span>금<br/>16</span><span>토<br/>17</span><span>일<br/>18</span></div>{ministry.slice(0,3).map(([title,,dday]) => <div className="mp-calendar-item" key={String(title)}><i /> <strong>{title}</strong><small>{dday}</small></div>)}<button className="mp-calendar-add">▣　새 일정 추가</button></section>
+          <section className="mp-tip"><b>✦　오늘의 팁</b><h3>설교에 적용할 예화가 필요하신가요?</h3><p>본문과 주제에 맞는 예화를 추천받아 보세요.</p><a href="/sermon">예화 추천받기　→</a></section>
+        </aside>
+      </section>
     </main>
   );
 }
-
-function BookIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11a2 2 0 0 1 2 2v15a2.5 2.5 0 0 0-2.5-2.5H4V5.5Z"/><path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H13v17a2.5 2.5 0 0 1 2.5-2.5H20V5.5Z"/></svg>; }
-function PenIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 5.5 4 4M4 20l4.2-1 10.9-10.9a1.8 1.8 0 0 0 0-2.6l-.6-.6a1.8 1.8 0 0 0-2.6 0L5 15.8 4 20Z"/></svg>; }
-function HandsIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 4.5 12 9l3.5-4.5M12 9v11M7 13l5 7 5-7"/></svg>; }
-function ChurchIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v5M9.5 4.5h5M5 21v-9l7-5 7 5v9M3 21h18M10 21v-5h4v5"/></svg>; }
-function PlayIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9 5 3-5 3V9Z"/></svg>; }
-function FileIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h8l4 4v16H6V2Z"/><path d="M14 2v5h5M9 12h6M9 16h6"/></svg>; }
-function ArrowIcon() { return <svg className="home-v4-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M14 7l5 5-5 5"/></svg>; }
-function ArrowUpIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M7 10l5-5 5 5"/></svg>; }
