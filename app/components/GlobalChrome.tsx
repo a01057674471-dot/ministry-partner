@@ -5,7 +5,7 @@ import V2Sidebar from "./V2Sidebar";
 
 export default function GlobalChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const selfContainedRoutes = ["/roadmap", "/image-content", "/library"];
+  const selfContainedRoutes = ["/workspace", "/roadmap", "/image-content", "/library"];
   if (pathname.startsWith("/api") || selfContainedRoutes.some((route) => pathname === route || pathname.startsWith(`${route}/`))) {
     return <>{children}</>;
   }
