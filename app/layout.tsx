@@ -18,25 +18,10 @@ import "./partner-dashboard.css";
 import "./v2-request-fixes.css";
 import "./research-modern.css";
 import "./trust-polish.css";
+import "./completion-polish.css";
 import CloudSyncBridge from "./components/CloudSyncBridge";
 import GlobalChrome from "./components/GlobalChrome";
 
-export const metadata: Metadata = {
-  title: "사역파트너",
-  description: "반복되는 준비와 정리를 덜어 사역에 더 집중하도록 돕는 사역 업무 플랫폼",
-};
-
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 1,
-  viewportFit: "cover",
-};
-
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return (
-    <html lang="ko">
-      <body><CloudSyncBridge /><GlobalChrome>{children}</GlobalChrome></body>
-    </html>
-  );
-}
+export const metadata: Metadata = { title: "사역파트너", description: "반복되는 준비와 정리를 덜어 사역에 더 집중하도록 돕는 사역 업무 플랫폼" };
+export const viewport: Viewport = { width: "device-width", initialScale: 1, maximumScale: 1, viewportFit: "cover" };
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) { return <html lang="ko"><body><CloudSyncBridge /><GlobalChrome>{children}</GlobalChrome></body></html>; }
