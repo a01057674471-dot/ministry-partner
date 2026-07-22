@@ -20,7 +20,7 @@ import GlobalChrome from "./components/GlobalChrome";
 
 export const metadata: Metadata = {
   title: "사역파트너",
-  description: "사역을 준비하는 모든 사람을 위한 AI 업무 플랫폼",
+  description: "반복되는 준비와 정리를 덜어 사역에 더 집중하도록 돕는 사역 업무 플랫폼",
 };
 
 export const viewport: Viewport = {
