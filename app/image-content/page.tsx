@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import V2Sidebar from "../components/V2Sidebar";
 
 const types = [
   { id: "card", icon: "▦", title: "카드뉴스", desc: "슬라이드별 문구와 이미지 방향" },
@@ -28,81 +29,55 @@ export default function ImageContentPage() {
 
   async function generatePlan() {
     if (!topic.trim()) return setError("만들고 싶은 주제와 대상을 입력해 주세요.");
-    setLoading(true);
-    setError("");
-    setResult("");
+    setLoading(true); setError(""); setResult("");
     const selected = types.find((item) => item.id === type)!;
     const instruction = `이미지 콘텐츠 종류: ${selected.title}\n다음 내용을 반드시 포함하세요: 핵심 메시지, 화면 구성, 이미지 스타일, 색상 방향, 대표 문구, 완성도 높은 AI 이미지 생성 프롬프트, SNS 캡션, 참여 유도 문장. 한글 오타를 줄이기 위해 이미지 안의 문구는 짧게 제안하세요.\n\n사용자 요청: ${topic.trim()}`;
     try {
-      const response = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tool: type === "thumbnail" || type === "prompt" ? "thumbnail" : "ideas", topic: instruction }),
-      });
+      const response = await fetch("/api/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: type === "thumbnail" || type === "prompt" ? "thumbnail" : "ideas", topic: instruction }) });
       const data = await response.json();
       if (!response.ok || !data.success) throw new Error(data.error || "기획안 준비에 실패했습니다.");
       setResult(data.result);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "오류가 발생했습니다.");
-    } finally {
-      setLoading(false);
-    }
+    } catch (err) { setError(err instanceof Error ? err.message : "오류가 발생했습니다."); }
+    finally { setLoading(false); }
   }
 
   async function generateImage() {
     if (!topic.trim()) return setError("만들 이미지를 설명해 주세요.");
     const selected = types.find((item) => item.id === type)!;
     const prompt = `콘텐츠 종류: ${selected.title}\n사용자 요청: ${topic.trim()}\n\n한국 교회 SNS에 실제 사용할 수 있는 완성 이미지로 제작하세요. 사용자가 요청한 분위기와 대상, 채널을 반영하고 불필요한 로고와 워터마크는 넣지 마세요. 이미지 안의 한글 문구는 꼭 필요한 경우에만 짧고 정확하게 넣으세요.`;
-    setImageLoading(true);
-    setError("");
-    setImageUrl("");
+    setImageLoading(true); setError(""); setImageUrl(""); setResult("");
     try {
-      const response = await fetch("/api/generate-image", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, size }),
-      });
+      const response = await fetch("/api/generate-image", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt, size }) });
       const data = await response.json();
       if (!response.ok || !data.success) throw new Error(data.error || "이미지 생성에 실패했습니다.");
       setImageUrl(data.imageUrl);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "이미지 생성 중 오류가 발생했습니다.");
-    } finally {
-      setImageLoading(false);
-    }
+    } catch (err) { setError(err instanceof Error ? err.message : "이미지 생성 중 오류가 발생했습니다."); }
+    finally { setImageLoading(false); }
   }
 
   return (
-    <main className="image-studio">
-      <aside className="image-studio-side">
-        <a className="mp-brand" href="/"><span className="mp-logo">ㅁ</span><span><strong>목회파트너</strong><small>사역을 함께 준비하는 공간</small></span></a>
-        <a className="image-back" href="/">← 홈으로</a>
-        <h2>이미지 콘텐츠</h2>
-        <p>설명을 입력하면 실제 이미지를 바로 생성합니다.</p>
-        <nav>{types.map((item) => <button key={item.id} onClick={() => setType(item.id)} className={type === item.id ? "active" : ""}><span>{item.icon}</span><div><strong>{item.title}</strong><small>{item.desc}</small></div></button>)}</nav>
-      </aside>
-
-      <section className="image-studio-main">
-        <header><span>IMAGE STUDIO</span><h1>{types.find((item) => item.id === type)?.title}</h1><p>기획안이 아니라 완성 이미지를 바로 만들 수 있습니다.</p></header>
-        <div className="image-studio-grid">
-          <section className="image-input-card">
-            <div className="notice">주제 / 대상 / 사용할 채널 / 원하는 분위기를 적어 주세요.</div>
-            <label>어떤 이미지를 만들까요?</label>
-            <textarea value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="예: 청년부 여름수련회 홍보 포스터 / 20대 청년 / 인스타그램 / 밝고 세련된 여름 분위기 / 제목은 ‘다시, 뜨겁게’" />
-            <div className="image-example-row"><button onClick={() => setTopic("창세기 22장 핵심 메시지 카드뉴스 / 초신자 / 인스타그램 / 따뜻하고 미니멀 / 1장 대표 이미지")}>성경 카드뉴스</button><button onClick={() => setTopic("이번 주일예배 초대 인스타 이미지 / 전 연령 / 단정하고 밝은 분위기")}>예배 초대 이미지</button><button onClick={() => setTopic("청년부 수련회 썸네일 / 20대 / 역동적이고 세련된 분위기")}>행사 썸네일</button></div>
-            <label>이미지 비율</label>
-            <select value={size} onChange={(event) => setSize(event.target.value)}><option value="1024x1024">정사각형 1:1</option><option value="1024x1536">세로형</option><option value="1536x1024">가로형</option></select>
-            <div className="editor-actions">
-              <button className="button button-primary" onClick={generateImage} disabled={imageLoading}>{imageLoading ? "이미지 생성 중… 잠시 기다려 주세요" : "이미지 바로 생성"}</button>
-              <button className="button button-secondary" onClick={generatePlan} disabled={loading}>{loading ? "기획안 준비 중…" : "기획안만 보기"}</button>
-              <button className="button button-secondary" onClick={() => { setTopic(""); setResult(""); setImageUrl(""); setError(""); }}>비우기</button>
-            </div>
-            {error && <div className="notice error"><strong>생성 실패</strong><br />{error}</div>}
-          </section>
-          <section className="image-result-card">
-            <div className="result-toolbar"><strong>{imageUrl ? "완성 이미지" : result ? "이미지 기획안" : "이미지 결과"}</strong><div>{result && <button onClick={() => navigator.clipboard.writeText(result)}>기획안 복사</button>}{imageUrl && <a href={imageUrl} download="ministry-partner-image.png">이미지 저장</a>}</div></div>
-            {imageLoading ? <div className="result-paper">이미지를 만들고 있습니다. 보통 30초에서 2분 정도 걸릴 수 있습니다.</div> : imageUrl ? <div className="generated-image-wrap"><img src={imageUrl} alt="생성된 이미지" /><button className="button button-secondary" onClick={generateImage} disabled={imageLoading}>다시 만들기</button></div> : result ? <div className="result-paper">{result}</div> : <div className="result-paper">왼쪽에 내용을 입력한 뒤 초록색 ‘이미지 바로 생성’ 버튼을 눌러 주세요.</div>}
-          </section>
+    <main className="v2-shell">
+      <V2Sidebar />
+      <section className="v2-main">
+        <div className="v2-page-head"><div><div className="eyebrow">IMAGE STUDIO</div><h1>이미지 스튜디오</h1><p>설명을 입력하면 기획안이 아니라 완성 이미지를 바로 만듭니다.</p></div></div>
+        <div className="image-studio-main" style={{padding:0}}>
+          <div className="image-type-tabs">{types.map((item) => <button key={item.id} onClick={() => setType(item.id)} className={type === item.id ? "active" : ""}><span>{item.icon}</span><strong>{item.title}</strong></button>)}</div>
+          <div className="image-studio-grid">
+            <section className="image-input-card">
+              <div className="notice">주제 / 대상 / 채널 / 분위기 / 넣을 문구를 적어 주세요.</div>
+              <label>어떤 이미지를 만들까요?</label>
+              <textarea value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="예: 청년부 여름수련회 포스터 / 20대 / 인스타그램 / 밝고 세련된 여름 분위기 / 제목은 ‘다시, 뜨겁게’" />
+              <div className="image-example-row"><button onClick={() => setTopic("창세기 22장 핵심 메시지 카드뉴스 / 초신자 / 인스타그램 / 따뜻하고 미니멀 / 1장 대표 이미지")}>성경 카드뉴스</button><button onClick={() => setTopic("이번 주일예배 초대 인스타 이미지 / 전 연령 / 단정하고 밝은 분위기")}>예배 초대 이미지</button><button onClick={() => setTopic("청년부 수련회 썸네일 / 20대 / 역동적이고 세련된 분위기")}>행사 썸네일</button></div>
+              <label>이미지 비율</label>
+              <select value={size} onChange={(event) => setSize(event.target.value)}><option value="1024x1024">정사각형 1:1</option><option value="1024x1536">세로형</option><option value="1536x1024">가로형</option></select>
+              <div className="editor-actions"><button className="button button-primary" onClick={generateImage} disabled={imageLoading}>{imageLoading ? "이미지 생성 중…" : "이미지 바로 생성"}</button><button className="button button-secondary" onClick={generatePlan} disabled={loading}>{loading ? "기획안 준비 중…" : "기획안만 보기"}</button><button className="button button-secondary" onClick={() => { setTopic(""); setResult(""); setImageUrl(""); setError(""); }}>비우기</button></div>
+              {error && <div className="notice error"><strong>생성 실패</strong><br />{error}</div>}
+            </section>
+            <section className="image-result-card">
+              <div className="result-toolbar"><strong>{imageUrl ? "완성 이미지" : result ? "이미지 기획안" : "이미지 결과"}</strong><div>{result && <button onClick={() => navigator.clipboard.writeText(result)}>기획안 복사</button>}{imageUrl && <a href={imageUrl} download="ministry-partner-image.png">이미지 저장</a>}</div></div>
+              {imageLoading ? <div className="result-paper">이미지를 만들고 있습니다. 보통 30초에서 2분 정도 걸립니다.</div> : imageUrl ? <div className="generated-image-wrap"><img src={imageUrl} alt="생성된 이미지" /><button className="button button-secondary" onClick={generateImage}>다시 만들기</button></div> : result ? <div className="result-paper">{result}</div> : <div className="result-paper">왼쪽에 내용을 입력한 뒤 초록색 ‘이미지 바로 생성’을 눌러 주세요.</div>}
+            </section>
+          </div>
         </div>
       </section>
     </main>
