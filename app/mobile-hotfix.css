@@ -15,9 +15,6 @@
   .v2-mobile-nav a small{display:block;font-size:11px;line-height:1.1;white-space:nowrap}
   .v2-mobile-nav a.active{background:var(--v2-green2);color:var(--v2-green)}
 
-  .ws3-brand strong{font-size:0}
-  .ws3-brand strong::after{content:"사역파트너";font-size:19px}
-
   .home-v2-page{display:block!important;width:100%!important;max-width:none!important;margin:0!important;padding:20px 18px 40px!important;overflow:hidden}
   .home-v2-top{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px}
   .home-v2-top>div:first-child{min-width:0}
@@ -52,6 +49,13 @@
   .projects-v3,.roadmap-v3,.image-studio-main{max-width:100%!important;overflow:hidden}
   .image-type-tabs{width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
   .image-studio-grid,.image-v3-grid,.workspace-grid{width:100%;max-width:100%;grid-template-columns:1fr!important}
+
+  /* Home brand: prevent symbol/text collision and wrapping */
+  .partner-home-logo{min-width:0;flex:0 1 auto;align-items:center!important}
+  .partner-brand-symbol{flex:0 0 42px!important}
+  .partner-home-logo>span:last-child{display:block!important;min-width:max-content!important;width:auto!important;background:transparent!important;overflow:visible!important}
+  .partner-home-logo strong{display:block!important;white-space:nowrap!important;word-break:keep-all!important;line-height:1.1!important;background:transparent!important}
+  .partner-home-logo small{display:none!important}
 }
 
 @media (max-width:420px){
@@ -59,4 +63,7 @@
   .home-v2-hero{margin-top:34px!important}
   .home-v2-hero h1{font-size:36px!important}
   .home-v2-subcopy{font-size:14px}
+  .partner-home-brand{gap:12px!important}
+  .partner-home-logo strong{font-size:20px!important}
+  .partner-home-brand p{font-size:12px!important;max-width:120px!important}
 }
