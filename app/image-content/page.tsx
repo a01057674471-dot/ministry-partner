@@ -11,9 +11,21 @@ const types = [
   { id: "banner", icon: "▬", title: "배너" },
 ];
 
+const styles = [
+  ["photo", "실사"], ["cinematic", "시네마틱"], ["minimal", "미니멀"],
+  ["illustration", "일러스트"], ["watercolor", "수채화"], ["threeD", "3D"],
+];
+
+const moods = [
+  ["premium", "고급스럽게"], ["bright", "밝고 희망차게"], ["warm", "따뜻하게"],
+  ["holy", "경건하고 평안하게"], ["dynamic", "역동적으로"],
+];
+
 export default function ImageContentPage() {
   const previewRef = useRef<HTMLDivElement>(null);
   const [type, setType] = useState("card");
+  const [style, setStyle] = useState("photo");
+  const [mood, setMood] = useState("premium");
   const [topic, setTopic] = useState("");
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
@@ -30,11 +42,13 @@ export default function ImageContentPage() {
 
   async function generateImage() {
     if (!topic.trim()) return setError("만들 이미지의 배경과 분위기를 설명해 주세요.");
-    const selected = types.find((item) => item.id === type)!;
-    const prompt = `콘텐츠 종류: ${selected.title}\n사용자 요청: ${topic.trim()}\n\n한국 교회에서 실제 사용할 수 있는 고품질 배경 이미지를 만드세요. 가장 중요한 조건: 이미지 안에 글자, 한글, 영문, 숫자, 로고, 워터마크, 간판 문구를 절대로 넣지 마세요. 제목이 올라갈 수 있도록 충분한 여백을 남기고, 인물의 얼굴이나 핵심 피사체가 텍스트 영역과 겹치지 않게 구성하세요.`;
     setImageLoading(true); setError(""); setImageUrl("");
     try {
-      const response = await fetch("/api/generate-image", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt, size }) });
+      const response = await fetch("/api/generate-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: topic.trim(), size, type, style, mood }),
+      });
       const data = await response.json();
       if (!response.ok || !data.success) throw new Error(data.error || "이미지 생성에 실패했습니다.");
       setImageUrl(data.imageUrl);
@@ -57,12 +71,12 @@ export default function ImageContentPage() {
       const x = align === "center" ? width / 2 : padding;
       ctx.textAlign = align;
       ctx.fillStyle = "white";
-      ctx.shadowColor = "rgba(0,0,0,.55)";
-      ctx.shadowBlur = Math.round(width * 0.012);
-      ctx.font = `800 ${Math.round(width * 0.075)}px Arial, sans-serif`;
+      ctx.shadowColor = "rgba(0,0,0,.6)";
+      ctx.shadowBlur = Math.round(width * 0.014);
+      ctx.font = `800 ${Math.round(width * 0.075)}px Arial, Apple SD Gothic Neo, sans-serif`;
       const titleY = Math.round(height * 0.72);
       ctx.fillText(title || "", x, titleY, width - padding * 2);
-      ctx.font = `600 ${Math.round(width * 0.03)}px Arial, sans-serif`;
+      ctx.font = `600 ${Math.round(width * 0.03)}px Arial, Apple SD Gothic Neo, sans-serif`;
       ctx.fillText(subtitle || "", x, titleY + Math.round(height * 0.065), width - padding * 2);
       const link = document.createElement("a");
       link.download = "ministry-partner-image.png";
@@ -76,18 +90,22 @@ export default function ImageContentPage() {
     <main className="v2-shell">
       <V2Sidebar />
       <section className="v2-main">
-        <div className="v2-page-head"><div><div className="eyebrow">IMAGE STUDIO</div><h1>이미지 스튜디오</h1><p>AI는 배경만 만들고, 한글은 사이트에서 정확하게 올립니다.</p></div></div>
+        <div className="v2-page-head"><div><div className="eyebrow">IMAGE STUDIO</div><h1>이미지 스튜디오</h1><p>고품질 배경을 만든 뒤 한글 문구는 정확하게 직접 올립니다.</p></div></div>
         <div className="image-type-tabs">{types.map((item) => <button key={item.id} onClick={() => setType(item.id)} className={type === item.id ? "active" : ""}><span>{item.icon}</span><strong>{item.title}</strong></button>)}</div>
         <div className="image-studio-grid image-v3-grid">
           <section className="image-input-card">
-            <div className="notice"><strong>1. 배경 만들기</strong><br/>글자는 넣지 않고 배경과 분위기만 생성합니다.</div>
-            <label>배경은 어떤 모습인가요?</label>
-            <textarea value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="예: 청년부 여름수련회, 푸른 바다와 햇살, 밝고 세련된 분위기, 인물 없이 제목이 들어갈 넓은 여백" />
+            <div className="notice"><strong>1. 고품질 배경 만들기</strong><br/>용도·스타일·분위기에 맞는 전문 프롬프트가 자동 적용됩니다.</div>
+            <label>스타일</label>
+            <div className="image-align-buttons">{styles.map(([id, label]) => <button key={id} className={style === id ? "active" : ""} onClick={() => setStyle(id)}>{label}</button>)}</div>
+            <label>분위기</label>
+            <div className="image-align-buttons">{moods.map(([id, label]) => <button key={id} className={mood === id ? "active" : ""} onClick={() => setMood(id)}>{label}</button>)}</div>
+            <label>어떤 장면을 만들까요?</label>
+            <textarea value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="예: 청년부 여름수련회, 푸른 바다와 햇살, 한국인 청년들이 멀리서 함께 걷는 모습, 제목이 들어갈 넓은 하늘 여백" />
             <label>이미지 비율</label>
             <select value={size} onChange={(event) => setSize(event.target.value)}><option value="1024x1024">정사각형 1:1</option><option value="1024x1536">세로형</option><option value="1536x1024">가로형</option></select>
-            <button className="button button-primary wide" onClick={generateImage} disabled={imageLoading}>{imageLoading ? "배경 생성 중…" : "글자 없는 배경 생성"}</button>
+            <button className="button button-primary wide" onClick={generateImage} disabled={imageLoading}>{imageLoading ? "고품질 이미지 생성 중…" : "고품질 배경 생성"}</button>
             <div className="image-v3-divider" />
-            <div className="notice"><strong>2. 정확한 문구 올리기</strong><br/>입력한 글자가 그대로 적용되어 오타나 폰트 깨짐이 없습니다.</div>
+            <div className="notice"><strong>2. 정확한 문구 올리기</strong><br/>입력한 문구를 사이트가 직접 합성하므로 한글이 깨지지 않습니다.</div>
             <label>제목<input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="예: 다시, 뜨겁게" /></label>
             <label>부제<input value={subtitle} onChange={(e) => setSubtitle(e.target.value)} placeholder="예: 2026 청년부 여름수련회" /></label>
             <label>글자 정렬</label>
@@ -96,8 +114,8 @@ export default function ImageContentPage() {
           </section>
 
           <section className="image-result-card">
-            <div className="result-toolbar"><strong>실시간 미리보기</strong><div>{imageUrl && <button onClick={downloadComposed}>완성 이미지 저장</button>}</div></div>
-            {imageLoading ? <div className="result-paper">글자가 없는 배경을 만들고 있습니다. 보통 30초에서 2분 정도 걸립니다.</div> : imageUrl ? <div className={`image-v3-preview ${align}`} ref={previewRef}><img src={imageUrl} alt="생성된 배경" /><div className="image-v3-overlay"><strong>{title}</strong><span>{subtitle}</span></div></div> : <div className="result-paper">왼쪽에서 배경을 생성하면 여기에 미리보기가 나타납니다. 제목과 부제는 생성 후에도 자유롭게 수정할 수 있습니다.</div>}
+            <div className="result-toolbar"><strong>실시간 미리보기</strong><div>{imageUrl && <><button onClick={generateImage}>다시 만들기</button><button onClick={downloadComposed}>완성 이미지 저장</button></>}</div></div>
+            {imageLoading ? <div className="result-paper">고품질 이미지 생성은 보통 1~3분 정도 걸릴 수 있습니다.</div> : imageUrl ? <div className={`image-v3-preview ${align}`} ref={previewRef}><img src={imageUrl} alt="생성된 배경" /><div className="image-v3-overlay"><strong>{title}</strong><span>{subtitle}</span></div></div> : <div className="result-paper">왼쪽에서 스타일과 분위기를 고른 뒤 배경을 생성해 주세요. 제목과 부제는 생성 후에도 자유롭게 수정할 수 있습니다.</div>}
           </section>
         </div>
       </section>
