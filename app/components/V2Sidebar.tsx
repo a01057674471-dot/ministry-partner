@@ -9,18 +9,35 @@ const items = [
   ["/transform", "변환센터", "↻"],
   ["/image-content", "이미지 스튜디오", "◫"],
   ["/library", "자료실", "▧"],
-  ["/roadmap", "우리 교회", "◇"],
+  ["/roadmap", "교회 로드맵", "◇"],
   ["/pricing", "요금제", "₩"],
   ["/account", "계정", "○"],
 ];
 
+const mobileItems = [
+  ["/", "홈", "⌂"],
+  ["/workspace", "작업", "▤"],
+  ["/image-content", "이미지", "◫"],
+  ["/roadmap", "로드맵", "◇"],
+  ["/account", "계정", "○"],
+];
+
+function isActive(pathname: string, href: string) {
+  return pathname === href || (href !== "/" && pathname.startsWith(href));
+}
+
 export default function V2Sidebar() {
   const pathname = usePathname();
   return (
-    <aside className="v2-sidebar">
-      <a href="/" className="v2-brand"><span className="v2-brand-mark">MP</span><span><strong>목회파트너</strong><small>Pastor Workspace</small></span></a>
-      <nav>{items.map(([href,label,icon]) => <a key={href} href={href} className={pathname === href || (href !== "/" && pathname.startsWith(href)) ? "active" : ""}><span>{icon}</span>{label}</a>)}</nav>
-      <div className="v2-sidebar-bottom"><p>사역을 한곳에서 준비하고<br/>이어가는 목회 워크스페이스</p><a href="/account">내 계정 열기 →</a></div>
-    </aside>
+    <>
+      <aside className="v2-sidebar">
+        <a href="/" className="v2-brand"><span className="v2-brand-mark">MP</span><span><strong>목회파트너</strong><small>사역을 함께 준비하는 동역자</small></span></a>
+        <nav>{items.map(([href,label,icon]) => <a key={href} href={href} className={isActive(pathname, href) ? "active" : ""}><span>{icon}</span>{label}</a>)}</nav>
+        <div className="v2-sidebar-bottom"><p>말씀과 성도를 섬기는 일에<br/>더 집중할 수 있도록 돕습니다.</p><a href="/account">내 계정 열기 →</a></div>
+      </aside>
+      <nav className="v2-mobile-nav" aria-label="모바일 주요 메뉴">
+        {mobileItems.map(([href,label,icon]) => <a key={href} href={href} className={isActive(pathname, href) ? "active" : ""}><span>{icon}</span><small>{label}</small></a>)}
+      </nav>
+    </>
   );
 }
