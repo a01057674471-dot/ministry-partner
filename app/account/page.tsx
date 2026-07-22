@@ -15,28 +15,35 @@ const SYNC_KEYS = [
 export default function AccountPage() {
   const [user, setUser] = useState<User | null>(null);
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const configured = isSupabaseConfigured();
 
   useEffect(() => {
+    const savedName = localStorage.getItem("ministry-partner-name");
+    if (savedName) setName(savedName);
     const supabase = getSupabaseBrowserClient();
     if (!supabase) return;
-    supabase.auth.getUser().then(({ data }) => setUser(data.user));
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => setUser(session?.user ?? null));
+    supabase.auth.getUser().then(({ data }) => applyUser(data.user));
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => applyUser(session?.user ?? null));
     return () => data.subscription.unsubscribe();
   }, []);
+
+  function applyUser(nextUser: User | null) {
+    setUser(nextUser);
+    if (!nextUser) return;
+    const userName = nextUser.user_metadata?.full_name || nextUser.user_metadata?.name || nextUser.email?.split("@")[0] || "사용자";
+    setName(userName);
+    localStorage.setItem("ministry-partner-name", userName);
+  }
 
   async function sendMagicLink(event: FormEvent) {
     event.preventDefault();
     const supabase = getSupabaseBrowserClient();
     if (!supabase || !email.trim()) return;
-    setLoading(true);
-    setMessage("");
-    const { error } = await supabase.auth.signInWithOtp({
-      email: email.trim(),
-      options: { emailRedirectTo: `${window.location.origin}/account` },
-    });
+    setLoading(true); setMessage("");
+    const { error } = await supabase.auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: `${window.location.origin}/account` } });
     setMessage(error ? error.message : "로그인 링크를 이메일로 보냈습니다. 메일에서 링크를 눌러 주세요.");
     setLoading(false);
   }
@@ -44,24 +51,17 @@ export default function AccountPage() {
   async function signInWithGoogle() {
     const supabase = getSupabaseBrowserClient();
     if (!supabase) return;
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/account` },
-    });
+    setMessage("");
+    const { error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${window.location.origin}/account` } });
+    if (error) setMessage("Google 로그인 설정이 아직 완료되지 않았습니다. 이메일 로그인은 바로 사용할 수 있습니다.");
   }
 
   async function syncNow() {
     const supabase = getSupabaseBrowserClient();
     if (!supabase || !user) return;
-    setLoading(true);
-    setMessage("");
-    const rows = SYNC_KEYS.flatMap(([key]) => {
-      const value = localStorage.getItem(key);
-      return value === null ? [] : [{ user_id: user.id, document_key: key, content: value, updated_at: new Date().toISOString() }];
-    });
-    const { error } = rows.length
-      ? await supabase.from("user_documents").upsert(rows, { onConflict: "user_id,document_key" })
-      : { error: null };
+    setLoading(true); setMessage("");
+    const rows = SYNC_KEYS.flatMap(([key]) => { const value = localStorage.getItem(key); return value === null ? [] : [{ user_id: user.id, document_key: key, content: value, updated_at: new Date().toISOString() }]; });
+    const { error } = rows.length ? await supabase.from("user_documents").upsert(rows, { onConflict: "user_id,document_key" }) : { error: null };
     setMessage(error ? error.message : "현재 기기의 자료를 클라우드에 저장했습니다.");
     setLoading(false);
   }
@@ -69,53 +69,20 @@ export default function AccountPage() {
   async function signOut() {
     const supabase = getSupabaseBrowserClient();
     if (!supabase) return;
-    await supabase.auth.signOut();
-    setMessage("로그아웃했습니다.");
+    await supabase.auth.signOut(); setMessage("로그아웃했습니다.");
   }
 
   return (
     <main className="account-shell">
-      <header className="account-header">
-        <a href="/" className="account-brand">✦ <strong>목회파트너</strong></a>
-        <a href="/">홈으로</a>
-      </header>
-
+      <header className="account-header"><a href="/" className="account-brand"><span className="brand-mark">ㅁ</span><strong>목회파트너</strong></a><div><a href="/pricing">요금제</a>　<a href="/">홈으로</a></div></header>
       <section className="account-card">
         <p className="account-kicker">계정 및 클라우드</p>
-        <h1>어디서든 이어서 작업하세요</h1>
-        <p>로그인하면 프로젝트, 자료실, 변환 기록이 PC와 휴대폰에서 자동으로 동기화됩니다.</p>
-
-        {!configured ? (
-          <div className="account-warning">
-            <strong>Supabase 연결이 필요합니다.</strong>
-            <p>Vercel 환경 변수에 NEXT_PUBLIC_SUPABASE_URL과 NEXT_PUBLIC_SUPABASE_ANON_KEY를 등록한 뒤 다시 배포해 주세요.</p>
-          </div>
-        ) : user ? (
-          <div className="account-signed">
-            <div className="account-user"><span>{(user.email || "사용자").slice(0, 1).toUpperCase()}</span><div><strong>로그인됨</strong><p>{user.email}</p></div></div>
-            <button className="account-primary" onClick={syncNow} disabled={loading}>{loading ? "동기화 중…" : "지금 클라우드에 저장"}</button>
-            <button className="account-secondary" onClick={signOut}>로그아웃</button>
-          </div>
-        ) : (
-          <div className="account-login">
-            <button className="account-google" onClick={signInWithGoogle}>Google로 계속하기</button>
-            <div className="account-divider"><span>또는</span></div>
-            <form onSubmit={sendMagicLink}>
-              <label>이메일</label>
-              <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="pastor@example.com" required />
-              <button className="account-primary" disabled={loading}>{loading ? "보내는 중…" : "이메일 로그인 링크 받기"}</button>
-            </form>
-          </div>
-        )}
-
+        <h1>{user ? `${name}님, 환영합니다.` : "어디서든 이어서 작업하세요"}</h1>
+        <p>{user ? "오늘도 필요한 사역을 편하게 준비해 보세요." : "로그인하면 프로젝트, 자료실, 변환 기록이 PC와 휴대폰에서 자동으로 동기화됩니다."}</p>
+        {!configured ? <div className="account-warning"><strong>Supabase 연결이 필요합니다.</strong><p>Vercel 환경 변수를 확인해 주세요.</p></div> : user ? <div className="account-signed"><div className="account-user"><span>{name.slice(0,1)}</span><div><strong>{name}</strong><p>{user.email}</p></div></div><button className="account-primary" onClick={syncNow} disabled={loading}>{loading ? "동기화 중…" : "지금 클라우드에 저장"}</button><button className="account-secondary" onClick={signOut}>로그아웃</button></div> : <div className="account-login"><button className="account-google" onClick={signInWithGoogle}>Google로 계속하기</button><div className="account-divider"><span>또는</span></div><form onSubmit={sendMagicLink}><label>이메일</label><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="pastor@example.com" required /><button className="account-primary" disabled={loading}>{loading ? "보내는 중…" : "이메일 로그인 링크 받기"}</button></form></div>}
         {message && <div className="account-message">{message}</div>}
       </section>
-
-      <section className="account-data-card">
-        <h2>동기화되는 항목</h2>
-        <div>{SYNC_KEYS.map(([key, label]) => <article key={key}><span>✓</span><strong>{label}</strong></article>)}</div>
-        <small>로그인 전에는 기존처럼 이 기기의 브라우저에 저장됩니다.</small>
-      </section>
+      <section className="account-data-card"><h2>동기화되는 항목</h2><div>{SYNC_KEYS.map(([key, label]) => <article key={key}><span>✓</span><strong>{label}</strong></article>)}</div><small>로그인 전에는 기존처럼 이 기기의 브라우저에 저장됩니다.</small></section>
     </main>
   );
 }
