@@ -7,7 +7,7 @@ const items = [
   ["/", "홈", "⌂"],
   ["/projects", "프로젝트", "▣"],
   ["/workspace", "작업공간", "▤"],
-  ["/research", "말씀 연구", "말씀"],
+  ["/research", "말씀 연구", "⌑"],
   ["/worship", "찬양 플래너", "♫"],
   ["/transform", "변환센터", "↻"],
   ["/image-content", "이미지 스튜디오", "◫"],
@@ -20,7 +20,7 @@ const items = [
 const mobileItems = [
   ["/", "홈", "⌂"],
   ["/workspace", "작업", "▤"],
-  ["/research", "말씀 연구", "말씀"],
+  ["/research", "말씀 연구", "⌑"],
   ["/roadmap", "사역 로드맵", "◇"],
   ["/account", "내 정보", "○"],
 ];
