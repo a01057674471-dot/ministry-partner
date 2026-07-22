@@ -25,7 +25,7 @@ export default function ResearchPage() {
 }
 
 function ResearchLoading() {
-  return <main className="research-page"><a className="brand" href="/"><span className="brand-mark">M</span><span>목회파트너</span></a><section className="hero-card research-panel" style={{ marginTop: 34 }}><div className="eyebrow">Bible Research</div><h1 style={{ fontSize: "clamp(38px,6vw,64px)", marginBottom: 14 }}>심층 본문 연구</h1><p>연구 화면을 준비하고 있습니다.</p></section></main>;
+  return <main className="research-modern"><section className="research-hero"><div className="research-kicker">BIBLE RESEARCH</div><h1>말씀 연구</h1><p>연구 화면을 준비하고 있습니다.</p></section></main>;
 }
 
 function ResearchContent() {
@@ -70,7 +70,7 @@ function ResearchContent() {
 
   function serializeResearch(value: ResearchResult) {
     return [
-      `# ${text(value.passage)} 심층 본문 연구`,
+      `# ${text(value.passage)} 말씀 연구`,
       `\n## 핵심 요약\n${text(value.summary)}`,
       `\n## 역사적·문화적 배경\n${text(value.historicalBackground)}`,
       `\n## 저자와 원래 독자\n저자: ${text(value.author)}\n독자: ${text(value.audience)}`,
@@ -91,39 +91,52 @@ function ResearchContent() {
   function saveResearch() {
     if (!result) return;
     const next = [{ id: Date.now(), passage: text(result.passage, passage), result, createdAt: new Date().toLocaleString("ko-KR") }, ...saved].slice(0, 30);
-    setSaved(next); localStorage.setItem("ministry-research-saved", JSON.stringify(next)); alert("본문 연구를 저장했습니다.");
+    setSaved(next); localStorage.setItem("ministry-research-saved", JSON.stringify(next)); alert("말씀 연구를 저장했습니다.");
   }
 
   function downloadResearch() {
     if (!result) return;
     const blob = new Blob([serializeResearch(result)], { type: "text/markdown;charset=utf-8" });
     const url = URL.createObjectURL(blob); const anchor = document.createElement("a");
-    anchor.href = url; anchor.download = `${text(result.passage, "본문연구").replace(/\s+/g, "-")}-본문연구.md`; anchor.click(); URL.revokeObjectURL(url);
+    anchor.href = url; anchor.download = `${text(result.passage, "말씀연구").replace(/\s+/g, "-")}-말씀연구.md`; anchor.click(); URL.revokeObjectURL(url);
   }
 
   async function shareResearch() {
     if (!result) return;
     const shareText = serializeResearch(result);
     try {
-      if (navigator.share) await navigator.share({ title: `${text(result.passage)} 본문 연구`, text: shareText });
+      if (navigator.share) await navigator.share({ title: `${text(result.passage)} 말씀 연구`, text: shareText });
       else { await navigator.clipboard.writeText(shareText); alert("공유용 연구 내용이 복사되었습니다."); }
-    } catch { /* 공유창 취소 */ }
+    } catch {}
   }
 
   return (
-    <main className="research-page">
-      <a className="brand" href="/"><span className="brand-mark">M</span><span>목회파트너</span></a>
-      <section className="hero-card research-panel" style={{ marginTop: 34 }}>
-        <div className="eyebrow">Deep Bible Research</div>
-        <h1 style={{ fontSize: "clamp(38px,6vw,64px)", marginBottom: 14 }}>심층 본문 연구</h1>
-        <p>배경·문맥·원어·절별 주해·주요 견해·검증 가능한 참고자료까지 한 번에 정리합니다.</p>
-        <form className="research-input" onSubmit={submit}><input value={passage} onChange={(event) => setPassage(event.target.value)} placeholder="예: 요한복음 15장 1–8절" /><button className="button button-primary" type="submit" disabled={loading}>{loading ? "심층 연구 중…" : "연구 시작"}</button></form>
-        {loading && <div className="notice">본문의 문맥과 원어, 주요 견해를 정리하고 있습니다. 페이지를 닫지 말고 잠시 기다려 주세요.</div>}
-        {!loading && <div className="notice">AI가 제시한 출처는 링크와 서지정보를 직접 확인하세요.</div>}
-        {error && <div className="notice error"><strong>연구를 완료하지 못했습니다.</strong><br />{error}<div className="editor-actions"><button className="button button-secondary" type="button" onClick={() => void runResearch(passage)}>다시 시도</button><a className="button button-secondary" href="/">홈으로</a></div></div>}
+    <main className="research-modern">
+      <section className="research-hero">
+        <div className="research-kicker">BIBLE RESEARCH</div>
+        <h1>말씀 연구</h1>
+        <p>본문의 배경과 문맥, 원어, 절별 주해와 주요 견해를 한눈에 정리합니다.</p>
       </section>
 
-      {result && <><section className="result">
+      <section className="research-search-card">
+        <div><strong>연구할 본문</strong><span>성경 구절을 정확히 입력해 주세요.</span></div>
+        <form className="research-search-form" onSubmit={submit}>
+          <input value={passage} onChange={(event) => setPassage(event.target.value)} placeholder="예: 요한복음 15장 1–8절" />
+          <button type="submit" disabled={loading}>{loading ? "연구 중…" : "연구 시작 →"}</button>
+        </form>
+      </section>
+
+      <section className="research-feature-grid">
+        <article><b>01</b><strong>배경과 문맥</strong><span>저자, 독자, 시대적 상황과 책 전체 흐름</span></article>
+        <article><b>02</b><strong>원어와 구조</strong><span>핵심 단어, 문법, 단락과 논리 전개</span></article>
+        <article><b>03</b><strong>해석과 적용</strong><span>주요 견해 비교, 주의점과 묵상 질문</span></article>
+      </section>
+
+      {loading && <div className="research-status">본문의 문맥과 원어, 주요 견해를 정리하고 있습니다.</div>}
+      {!loading && !error && <div className="research-note">AI가 제시한 출처는 링크와 서지정보를 직접 확인해 주세요.</div>}
+      {error && <div className="research-error"><strong>연구를 완료하지 못했습니다.</strong><p>{error}</p><button type="button" onClick={() => void runResearch(passage)}>다시 시도</button></div>}
+
+      {result && <><section className="research-results">
         <ResultSection title="연구 본문"><p>{text(result.passage)}</p></ResultSection>
         <ResultSection title="핵심 요약"><p>{text(result.summary)}</p></ResultSection>
         <ResultSection title="역사적·문화적 배경"><p>{text(result.historicalBackground)}</p></ResultSection>
@@ -131,20 +144,20 @@ function ResearchContent() {
         <ResultSection title="문학적 문맥"><p>{text(result.literaryContext)}</p></ResultSection>
         <ListSection title="본문 구조" items={result.structure} />
         <ListSection title="핵심 주제" items={result.keyThemes} />
-        <ResultSection title="절·단락별 상세 주해">{list(result.exegesis).map((item, index) => <div key={index} style={{ marginBottom: 22 }}><h4>{text(item?.section)}</h4><p>{text(item?.explanation)}</p><p><strong>본문 근거:</strong> {text(item?.evidence)}</p></div>)}</ResultSection>
-        <ResultSection title="원어 관찰">{list(result.originalLanguage).map((item, index) => <div key={index} style={{ marginBottom: 16 }}><p><strong>{text(item?.word)}</strong> ({text(item?.transliteration)}) · {text(item?.grammar)}</p><p>{text(item?.meaning)}</p>{item?.caution && <p><strong>주의:</strong> {item.caution}</p>}</div>)}</ResultSection>
+        <ResultSection title="절·단락별 상세 주해">{list(result.exegesis).map((item, index) => <div key={index} className="research-block"><h4>{text(item?.section)}</h4><p>{text(item?.explanation)}</p><p><strong>본문 근거:</strong> {text(item?.evidence)}</p></div>)}</ResultSection>
+        <ResultSection title="원어 관찰">{list(result.originalLanguage).map((item, index) => <div key={index} className="research-block"><p><strong>{text(item?.word)}</strong> ({text(item?.transliteration)}) · {text(item?.grammar)}</p><p>{text(item?.meaning)}</p>{item?.caution && <p><strong>주의:</strong> {item.caution}</p>}</div>)}</ResultSection>
         <ResultSection title="정경적·병행 본문 연결">{list(result.canonicalConnections).map((item, index) => <p key={index}><strong>{text(item?.reference)}</strong> — {text(item?.connection)}</p>)}</ResultSection>
-        <ResultSection title="주요 해석 견해 비교">{list(result.theologicalPerspectives).map((item, index) => <div key={index} style={{ marginBottom: 18 }}><h4>{text(item?.view)}</h4><p><strong>강점:</strong> {text(item?.strengths)}</p><p><strong>주의:</strong> {text(item?.cautions)}</p></div>)}</ResultSection>
+        <ResultSection title="주요 해석 견해 비교">{list(result.theologicalPerspectives).map((item, index) => <div key={index} className="research-block"><h4>{text(item?.view)}</h4><p><strong>강점:</strong> {text(item?.strengths)}</p><p><strong>주의:</strong> {text(item?.cautions)}</p></div>)}</ResultSection>
         <ListSection title="오늘의 적용을 위한 질문" items={result.application} />
         <ListSection title="해석 시 주의사항" items={result.cautions} />
-        <ResultSection title="검증·추가 연구 자료">{list(result.sources).map((item, index) => <div key={index} style={{ marginBottom: 16 }}><p><strong>{text(item?.title)}</strong> — {text(item?.authorOrOrganization)} · {text(item?.type)}</p><p>{text(item?.note)}</p>{item?.url && <a href={item.url} target="_blank" rel="noreferrer">자료 열기 ↗</a>}</div>)}</ResultSection>
+        <ResultSection title="검증·추가 연구 자료">{list(result.sources).map((item, index) => <div key={index} className="research-block"><p><strong>{text(item?.title)}</strong> — {text(item?.authorOrOrganization)} · {text(item?.type)}</p><p>{text(item?.note)}</p>{item?.url && <a href={item.url} target="_blank" rel="noreferrer">자료 열기 ↗</a>}</div>)}</ResultSection>
         <ListSection title="더 깊이 연구할 질문" items={result.furtherStudy} />
-      </section><section className="result-section" style={{ position: "sticky", bottom: 16, marginTop: 18 }}><div className="editor-actions"><button className="button button-primary" onClick={saveResearch}>저장</button><button className="button button-secondary" onClick={downloadResearch}>문서로 받기</button><button className="button button-secondary" onClick={shareResearch}>공유</button><button className="button button-secondary" onClick={() => navigator.clipboard.writeText(serializeResearch(result))}>전체 복사</button></div></section></>}
+      </section><section className="research-result-actions"><button onClick={saveResearch}>저장</button><button onClick={downloadResearch}>문서로 받기</button><button onClick={shareResearch}>공유</button><button onClick={() => navigator.clipboard.writeText(serializeResearch(result))}>전체 복사</button></section></>}
 
-      {saved.length > 0 && <section className="saved-section"><h2>저장한 본문 연구</h2><div className="saved-grid">{saved.map((item) => <button key={item.id} onClick={() => { setPassage(item.passage); setResult(item.result); }}><strong>{item.passage}</strong><span>{item.createdAt}</span></button>)}</div></section>}
+      {saved.length > 0 && <section className="research-saved"><h2>저장한 말씀 연구</h2><div>{saved.map((item) => <button key={item.id} onClick={() => { setPassage(item.passage); setResult(item.result); }}><strong>{item.passage}</strong><span>{item.createdAt}</span></button>)}</div></section>}
     </main>
   );
 }
 
-function ResultSection({ title, children }: { title: string; children: ReactNode }) { return <article className="result-section"><h3>{title}</h3>{children}</article>; }
+function ResultSection({ title, children }: { title: string; children: ReactNode }) { return <article className="research-result-card"><h3>{title}</h3>{children}</article>; }
 function ListSection({ title, items }: { title: string; items?: string[] }) { const safe = list(items); return <ResultSection title={title}>{safe.length ? <ul>{safe.map((item, index) => <li key={index}>{item}</li>)}</ul> : <p>확인 가능한 항목이 없습니다.</p>}</ResultSection>; }
