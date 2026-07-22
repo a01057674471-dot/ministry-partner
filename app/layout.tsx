@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "./home-v4.css";
+import "./workspace-links.css";
 
 export const metadata: Metadata = {
   title: "목회파트너",
