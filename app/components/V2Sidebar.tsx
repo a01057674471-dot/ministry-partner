@@ -5,21 +5,13 @@ import { usePathname } from "next/navigation";
 
 const items = [
   ["/", "홈", "⌂"],
-  ["/workspace", "작업", "▤"],
-  ["/research", "말씀 연구", "⌕"],
-  ["/image-content", "AI 디자인", "◫"],
-  ["/roadmap", "사역 로드맵", "◇"],
-  ["/pricing", "요금제", "₩"],
-  ["/account", "내 정보", "○"],
-];
-
-const mobileItems = [
-  ["/", "홈", "⌂"],
-  ["/workspace", "작업", "▤"],
-  ["/research", "연구", "⌕"],
+  ["/workspace", "프로젝트", "▤"],
+  ["/research", "말씀", "⌕"],
   ["/image-content", "디자인", "◫"],
   ["/account", "내 정보", "○"],
 ];
+
+const mobileItems = items;
 
 function isActive(pathname: string, href: string) {
   return pathname === href || (href !== "/" && pathname.startsWith(href));
