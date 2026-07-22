@@ -15,6 +15,7 @@ export default function CloudSyncBridge() {
   useEffect(() => {
     const supabase = getSupabaseBrowserClient();
     if (!supabase) return;
+    const client = supabase;
 
     let active = true;
     let userId = "";
@@ -22,12 +23,12 @@ export default function CloudSyncBridge() {
     const originalSetItem = window.localStorage.setItem.bind(window.localStorage);
 
     async function restore() {
-      const { data: sessionData } = await supabase.auth.getSession();
+      const { data: sessionData } = await client.auth.getSession();
       const user = sessionData.session?.user;
       if (!active || !user) return;
       userId = user.id;
 
-      const { data } = await supabase
+      const { data } = await client
         .from("user_documents")
         .select("document_key, content")
         .in("document_key", SYNC_KEYS);
@@ -42,7 +43,7 @@ export default function CloudSyncBridge() {
 
     async function save(key: string, value: string) {
       if (!userId || !SYNC_KEYS.includes(key)) return;
-      await supabase.from("user_documents").upsert(
+      await client.from("user_documents").upsert(
         {
           user_id: userId,
           document_key: key,
@@ -61,7 +62,7 @@ export default function CloudSyncBridge() {
       timers.set(key, setTimeout(() => save(key, value), 700));
     };
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: listener } = client.auth.onAuthStateChange((_event, session) => {
       userId = session?.user.id || "";
       if (userId) restore();
     });
