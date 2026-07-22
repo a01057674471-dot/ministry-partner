@@ -7,11 +7,12 @@ import "./workspace-v3.css";
 import "./transform-center.css";
 import "./library.css";
 import "./account-cloud.css";
+import "./product-upgrades.css";
 import CloudSyncBridge from "./components/CloudSyncBridge";
 
 export const metadata: Metadata = {
   title: "목회파트너",
-  description: "목회자를 위한 AI 성경 연구 파트너",
+  description: "목회자의 설교, 기도, 문서와 이미지 콘텐츠 준비를 돕는 사역 파트너",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
