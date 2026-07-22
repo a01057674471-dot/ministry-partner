@@ -10,7 +10,7 @@ const quickTools = [
   ["이미지 만들기", "포스터·카드뉴스·썸네일", "/image-content", "🎨"],
   ["본문 연구", "성경의 문맥과 핵심 연구", "/research", "🔎"],
   ["문서 작성", "기획서·보고서·교육안", "/document", "📄"],
-  ["우리 교회", "비전과 사역 계획 정리", "/roadmap", "◇"],
+  ["교회 로드맵", "비전과 사역 실행계획 정리", "/roadmap", "◇"],
 ];
 
 const examples = ["창세기 22장으로 25분 설교 준비해줘", "이번 주 대표기도 작성해줘", "청년부 수련회 포스터 이미지 만들어줘"];
@@ -64,17 +64,18 @@ export default function Home() {
       </header>
 
       <section className="home-v2-hero">
-        <p>목회 준비를 더 단순하게</p>
-        <h1>오늘 무엇을<br/><em>함께 준비할까요?</em></h1>
+        <p>오늘도 맡겨진 사역을 함께 준비합니다</p>
+        <h1>말씀에 더 집중하고,<br/><em>성도에게 더 가까이.</em></h1>
+        <div className="home-v2-subcopy">설교 · 양육 · 기도 · 콘텐츠 사역을 한곳에서 이어가세요.</div>
         <form className="home-v2-command" onSubmit={submit}>
-          <textarea value={request} onChange={(e) => setRequest(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); routeRequest(); } }} placeholder="설교, 기도문, 이미지, 문서 등 필요한 내용을 편하게 적어 주세요." />
-          <div><span>입력한 내용에 맞는 작업공간으로 바로 연결합니다.</span><button type="submit">요청하기 →</button></div>
+          <textarea value={request} onChange={(e) => setRequest(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); routeRequest(); } }} placeholder="오늘 준비할 설교, 기도, 문서나 사역을 편하게 적어 주세요." />
+          <div><span>필요한 작업공간으로 자연스럽게 연결합니다.</span><button type="submit">함께 준비하기 →</button></div>
         </form>
         <div className="home-v2-examples">{examples.map((item) => <button key={item} onClick={() => setRequest(item)}>{item}</button>)}</div>
       </section>
 
       <section className="home-v2-tools">
-        <div className="home-v2-section-head"><div><span>QUICK START</span><h2>자주 쓰는 기능</h2></div><a href="/workspace">전체 작업공간 보기 →</a></div>
+        <div className="home-v2-section-head"><div><span>QUICK START</span><h2>자주 쓰는 사역</h2></div><a href="/workspace">전체 작업공간 보기 →</a></div>
         <div className="home-v2-tool-grid">{quickTools.map(([title, desc, href, icon]) => <a href={href} key={title}><span>{icon}</span><div><strong>{title}</strong><small>{desc}</small></div><b>→</b></a>)}</div>
       </section>
     </main>
