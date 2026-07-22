@@ -10,6 +10,7 @@ import "./account-cloud.css";
 import "./product-upgrades.css";
 import "./v2.css";
 import CloudSyncBridge from "./components/CloudSyncBridge";
+import GlobalChrome from "./components/GlobalChrome";
 
 export const metadata: Metadata = {
   title: "목회파트너",
@@ -19,7 +20,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ko">
-      <body><CloudSyncBridge />{children}</body>
+      <body><CloudSyncBridge /><GlobalChrome>{children}</GlobalChrome></body>
     </html>
   );
 }
