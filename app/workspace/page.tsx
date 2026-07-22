@@ -13,7 +13,7 @@ type Project = {
   steps: { label: string; done: boolean }[];
 };
 
-const defaultSteps = ["본문 연구", "설교 초안", "예화", "PPT", "카드뉴스", "쇼츠", "완료"];
+const defaultSteps = ["말씀 연구", "설교 초안", "예화", "PPT", "카드뉴스", "쇼츠", "완료"];
 const quickActions = [
   ["예화 추가", "현재 결과에 실제 설교에 사용할 수 있는 예화 방향 3개를 추가해 주세요."],
   ["더 자세하게", "현재 결과를 더 구체적이고 풍성하게 확장해 주세요."],
@@ -112,7 +112,7 @@ export default function WorkspacePage() {
     setInput("");
 
     try {
-      const context = active.messages.slice(-6).map((message) => `${message.role === "user" ? "사용자" : "파트너"}: ${message.content}`).join("\n\n");
+      const context = active.messages.slice(-4).map((message) => `${message.role === "user" ? "사용자" : "파트너"}: ${message.content}`).join("\n\n");
       const topic = context
         ? `이전 작업 내용:\n${context}\n\n현재 요청:\n${trimmed}\n\n이전 결과를 유지하고 현재 요청에 맞게 이어서 작업하세요.`
         : trimmed;
@@ -146,13 +146,13 @@ export default function WorkspacePage() {
   return (
     <main className="ws3-shell">
       <aside className="ws3-projects">
-        <a href="/" className="ws3-brand"><span>✦</span><strong>목회파트너</strong></a>
+        <a href="/" className="ws3-brand"><span>✦</span><strong>사역파트너</strong></a>
         <button className="ws3-new" onClick={addProject}>＋ 새 프로젝트</button>
         <p className="ws3-label">프로젝트</p>
         <div className="ws3-project-list">
           {projects.map((project) => (
             <button key={project.id} className={project.id === activeId ? "active" : ""} onClick={() => setActiveId(project.id)}>
-              <span>{project.type === "prayer" ? "🙏" : project.type === "shorts" ? "🎬" : project.type === "document" ? "📄" : "📖"}</span>
+              <span>{project.type === "prayer" ? "🙏" : project.type === "shorts" ? "🎬" : project.type === "document" ? "📄" : "⌑"}</span>
               <div><strong>{project.title}</strong><small>{relativeTime(project.updatedAt)} · {project.progress}%</small></div>
             </button>
           ))}
@@ -171,11 +171,11 @@ export default function WorkspacePage() {
             <section className="ws3-empty"><span>✦</span><h1>사역을 함께 시작해 볼까요?</h1><p>본문, 대상, 시간, 원하는 결과를 편하게 적어 주세요.</p><div>{["창세기 22장 설교 준비", "대표기도 작성", "청년부 카드뉴스", "회의록 정리"].map((item) => <button key={item} onClick={() => setInput(item)}>{item}</button>)}</div></section>
           ) : active.messages.map((message) => (
             <article className={`ws3-message ${message.role}`} key={message.id}>
-              <div className="ws3-message-label">{message.role === "user" ? "목사님" : "목회파트너"}</div>
+              <div className="ws3-message-label">{message.role === "user" ? "사역자" : "사역파트너"}</div>
               <div className="ws3-message-body">{message.content}</div>
             </article>
           ))}
-          {loading && <article className="ws3-message assistant"><div className="ws3-message-label">목회파트너</div><div className="ws3-thinking">내용을 이어서 준비하고 있습니다…</div></article>}
+          {loading && <article className="ws3-message assistant"><div className="ws3-message-label">사역파트너</div><div className="ws3-thinking">내용을 이어서 준비하고 있습니다…</div></article>}
           {error && <div className="ws3-error">{error}</div>}
         </div>
 
