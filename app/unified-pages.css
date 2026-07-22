@@ -1,0 +1,51 @@
+:root{--ui-green:#25745e;--ui-green-dark:#185845;--ui-blue:#3b82f6;--ui-purple:#8b5cf6;--ui-orange:#f59e0b;--ui-pink:#ec4899;--ui-bg:#f7faf8;--ui-card:#fff;--ui-line:#e3e9e5;--ui-ink:#18221e;--ui-muted:#707a75;--ui-shadow:0 14px 38px rgba(29,55,44,.07)}
+
+/* Shared visual language for every product page */
+.v2-global-shell,.research-page,.studio-page,.image-studio,.account-page,.library-page,.roadmap-v3,.projects-v3,.ws3-shell{background:radial-gradient(circle at 12% 0,#eefaf5 0,transparent 30%),radial-gradient(circle at 88% 0,#f4f0ff 0,transparent 28%),var(--ui-bg)!important;color:var(--ui-ink)}
+.v2-global-content{background:transparent!important}
+.v2-page-head,.research-panel,.generator-card,.output-card,.saved-card,.library-card,.account-card,.roadmap-card,.projects-card,.ws3-header,.ws3-message.assistant .ws3-message-body,.ws3-thinking,.ws3-actions,.ws3-composer{border-color:var(--ui-line)!important;box-shadow:var(--ui-shadow)!important}
+.v2-page-head h1,.research-page h1,.studio-page h1,.image-studio h1,.account-page h1,.library-page h1,.roadmap-v3 h1,.projects-v3 h1{letter-spacing:-.055em;color:var(--ui-ink)}
+.button-primary,.ws3-new,.ws3-composer button,.ws3-message.user .ws3-message-body{background:linear-gradient(135deg,#2f8067,#1c624d)!important;color:#fff!important;box-shadow:0 10px 22px rgba(32,103,79,.18)!important}
+.button-secondary,.ws3-header button,.ws3-actions button,.ws3-empty button{background:#fff!important;border:1px solid var(--ui-line)!important;border-radius:999px!important}
+
+/* Project workspace */
+.ws3-shell{grid-template-columns:245px minmax(0,1fr) 300px!important}
+.ws3-projects,.ws3-progress{background:rgba(255,255,255,.82)!important;backdrop-filter:blur(18px);border-color:var(--ui-line)!important}
+.ws3-projects{padding-top:22px!important}
+.ws3-new{width:100%;border-radius:15px!important;padding:15px!important;font-size:14px}
+.ws3-project-list button{border:1px solid transparent!important;transition:.2s}
+.ws3-project-list button.active,.ws3-project-list button:hover{background:linear-gradient(135deg,#eef9f4,#f7f3ff)!important;border-color:#dce8e2!important;box-shadow:0 8px 22px rgba(29,55,44,.05)}
+.ws3-center{background:transparent!important}
+.ws3-header{background:rgba(255,255,255,.76)!important;backdrop-filter:blur(20px)!important}
+.ws3-chat{width:min(880px,calc(100% - 48px))!important}
+.ws3-empty{margin-top:36px;padding:64px 28px!important;border:1px solid var(--ui-line);border-radius:28px;background:linear-gradient(120deg,rgba(234,249,242,.94),rgba(255,255,255,.96) 52%,rgba(245,241,255,.92));box-shadow:var(--ui-shadow)}
+.ws3-empty>span{background:linear-gradient(135deg,#dff6ea,#eee5ff)!important;color:var(--ui-green)!important}
+.ws3-message-body,.ws3-thinking{border-radius:22px!important}
+.ws3-actions{background:rgba(247,250,248,.9)!important;backdrop-filter:blur(18px)}
+.ws3-composer{background:rgba(255,255,255,.94)!important;backdrop-filter:blur(18px)}
+.ws3-composer textarea{background:#f8fbf9;border:1px solid var(--ui-line)!important;border-radius:18px;padding:14px 16px!important}
+.ws3-progress section{background:#fff;border:1px solid var(--ui-line)!important;border-radius:20px;padding:19px!important;margin-bottom:14px!important;box-shadow:0 8px 24px rgba(31,56,46,.035)}
+.ws3-progress-number strong,.ws3-header p b{color:var(--ui-green)!important}
+
+/* Global sidebar and page cards */
+.v2-sidebar{background:rgba(255,255,255,.86)!important;backdrop-filter:blur(18px);border-color:var(--ui-line)!important}
+.v2-sidebar nav a{border-radius:14px!important;transition:.18s}
+.v2-sidebar nav a.active{background:linear-gradient(135deg,#eaf6f0,#f2efff)!important;color:var(--ui-green)!important;box-shadow:0 8px 22px rgba(29,55,44,.05)}
+.v2-sidebar-bottom{background:linear-gradient(135deg,#f0faf5,#f6f2ff)!important;border:1px solid var(--ui-line)!important;border-radius:18px!important}
+.card,.generator-card,.output-card,.saved-card,.result-section,.tool-tab,.research-panel,.account-card,.library-card{border-radius:22px!important;background:rgba(255,255,255,.94)!important;border:1px solid var(--ui-line)!important;box-shadow:var(--ui-shadow)!important}
+.tool-tab.active{background:linear-gradient(135deg,#eef9f4,#f7f3ff)!important;border-color:#b9d1c6!important}
+input,textarea,select{border-color:var(--ui-line)}
+
+@media(max-width:900px){
+  .ws3-shell{display:block!important;background:radial-gradient(circle at 10% 0,#eefaf5 0,transparent 28%),radial-gradient(circle at 95% 0,#f4f0ff 0,transparent 26%),var(--ui-bg)!important}
+  .ws3-projects{min-height:78px!important;padding:14px!important;background:rgba(255,255,255,.82)!important;border-bottom:1px solid var(--ui-line)!important}
+  .ws3-new{position:absolute!important;right:14px!important;top:14px!important;width:auto!important;min-width:142px;border-radius:16px!important}
+  .ws3-label,.ws3-project-list,.ws3-bottom-nav{display:none!important}
+  .ws3-header{margin:0 14px;border:1px solid var(--ui-line)!important;border-radius:20px!important;top:10px!important}
+  .ws3-chat{width:calc(100% - 28px)!important}
+  .ws3-empty{margin-top:18px;padding:42px 20px!important;border-radius:24px}
+  .ws3-empty h1{font-size:27px!important}
+  .ws3-actions{background:rgba(247,250,248,.94)!important}
+  .ws3-composer{padding:10px 14px 12px!important}
+  .ws3-composer textarea{height:58px!important;min-height:58px!important}
+}
