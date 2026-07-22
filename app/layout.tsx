@@ -13,6 +13,7 @@ import "./v2-global.css";
 import "./v3-polish.css";
 import "./mobile-hotfix.css";
 import "./workspace-mobile-fix.css";
+import "./image-editor.css";
 import CloudSyncBridge from "./components/CloudSyncBridge";
 import GlobalChrome from "./components/GlobalChrome";
 
