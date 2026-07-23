@@ -44,7 +44,7 @@ export default function Home() {
   const router = useRouter();
   const [request, setRequest] = useState("");
   const [name, setName] = useState("사역자");
-  const [recent, setRecent] = useState<Array<{ title: string; updatedAt: string }>>([]);
+  const [recent, setRecent] = useState<Array<{ id: string; title: string; updatedAt: string }>>([]);
   const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
   const [eventTime, setEventTime] = useState("09:00");
   const [eventTitle, setEventTitle] = useState("");
@@ -59,6 +59,7 @@ export default function Home() {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed)) {
           setRecent(parsed.slice(0, 4).map((item) => ({
+            id: String(item.id || ""),
             title: String(item.title || "이름 없는 작업"),
             updatedAt: String(item.updatedAt || ""),
           })));
@@ -189,7 +190,7 @@ export default function Home() {
             {recent.length ? (
               <div className="partner-recent-simple">
                 {recent.map((item) => (
-                  <Link href="/workspace" key={item.title}>
+                  <Link href={`/workspace?project=${encodeURIComponent(item.id)}`} key={item.id || item.title}>
                     <span aria-hidden="true">▤</span>
                     <div><strong>{item.title}</strong><small>{item.updatedAt ? new Date(item.updatedAt).toLocaleString("ko-KR") : "저장된 작업"}</small></div>
                     <b aria-hidden="true">→</b>
