@@ -21,6 +21,7 @@ import "./trust-polish.css";
 import "./completion-polish.css";
 import "./unified-pages.css";
 import "./home-logo-fix.css";
+import "./home-v5-stable.css";
 import CloudSyncBridge from "./components/CloudSyncBridge";
 import GlobalChrome from "./components/GlobalChrome";
 
