@@ -1,15 +1,11 @@
-/* Home desktop layout and clean MP brand lockup — deploy refresh 2026-07-23 */
+/* Desktop-first home layout with clean inline SVG brand */
 .partner-home-layout{
-  width:min(1380px,100%)!important;
-  margin-inline:auto!important;
-}
-.partner-dashboard-main{
-  width:100%!important;
+  width:min(1400px,100%)!important;
   margin-inline:auto!important;
 }
 .partner-home-brand{
-  width:min(1280px,100%)!important;
-  margin:0 auto 30px!important;
+  width:100%!important;
+  margin:0 auto 28px!important;
   display:flex!important;
   align-items:center!important;
   justify-content:space-between!important;
@@ -19,29 +15,24 @@
   display:inline-flex!important;
   align-items:center!important;
   flex:0 0 auto!important;
-  gap:13px!important;
+  gap:12px!important;
   min-width:max-content!important;
-  max-width:none!important;
   overflow:visible!important;
 }
 .partner-home-logo>span:last-child{
   display:flex!important;
   flex-direction:column!important;
   justify-content:center!important;
-  flex:0 0 auto!important;
   min-width:max-content!important;
   line-height:1!important;
 }
 .partner-home-logo strong{
   display:block!important;
-  width:auto!important;
-  max-width:none!important;
   margin:0!important;
   padding:0!important;
   white-space:nowrap!important;
   word-break:keep-all!important;
   overflow:visible!important;
-  text-overflow:clip!important;
   font-size:26px!important;
   line-height:1.08!important;
   letter-spacing:-.055em!important;
@@ -49,29 +40,23 @@
 .partner-home-logo small{
   display:block!important;
   margin:5px 0 0!important;
-  padding:0!important;
   white-space:nowrap!important;
   font-size:10px!important;
   line-height:1.2!important;
   letter-spacing:.14em!important;
 }
-
-/* Transparent MP monogram: no green/white box, border or shadow */
 .partner-brand-symbol{
   position:relative!important;
-  display:block!important;
-  flex:0 0 48px!important;
-  width:48px!important;
-  height:48px!important;
-  min-width:48px!important;
+  display:grid!important;
+  place-items:center!important;
+  flex:0 0 46px!important;
+  width:46px!important;
+  height:46px!important;
+  min-width:46px!important;
   border:0!important;
   border-radius:0!important;
   box-shadow:none!important;
-  background-color:transparent!important;
-  background-repeat:no-repeat!important;
-  background-position:center!important;
-  background-size:46px 46px!important;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M8 47V17h9l15 19 15-19h9v30H46V31L32 49 18 31v16z' fill='%23153f33'/%3E%3Cpath d='M50 5l2.1 5L57 12l-4.9 2.1L50 19l-2.1-4.9L43 12l4.9-2z' fill='%23f59e0b'/%3E%3C/svg%3E")!important;
+  background:none!important;
   overflow:visible!important;
 }
 .partner-brand-symbol i,
@@ -80,64 +65,114 @@
   display:none!important;
   content:none!important;
 }
+.partner-brand-svg{
+  display:block;
+  width:46px;
+  height:46px;
+  color:#153f33;
+  overflow:visible;
+}
 .partner-home-brand>p{
   flex:0 0 auto!important;
   margin:0!important;
   white-space:nowrap!important;
 }
 
-/* Use desktop space instead of stretching a mobile-width column */
-.partner-principle,
+.partner-hero-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 300px;
+  gap:20px;
+  align-items:stretch;
+}
+.partner-principle{
+  width:100%!important;
+  margin:0!important;
+}
+.partner-hero-side{
+  padding:28px;
+  border:1px solid var(--partner-border);
+  border-radius:28px;
+  background:rgba(255,255,255,.96);
+  box-shadow:var(--partner-shadow);
+}
+.partner-hero-side>small{
+  display:block;
+  margin-bottom:8px;
+  color:#2d8067;
+  font-size:10px;
+  font-weight:950;
+  letter-spacing:.14em;
+}
+.partner-hero-side h2{
+  margin:0 0 20px;
+  font-size:24px;
+  letter-spacing:-.045em;
+}
+.partner-hero-side a{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:15px 0;
+  border-top:1px solid #edf1ef;
+  color:#28352f;
+  font-size:14px;
+  font-weight:850;
+}
+.partner-hero-side a:first-of-type{border-top:0}
+.partner-hero-side a b{color:#2b7a62}
+
 .partner-command,
-.partner-example-row{
-  width:min(1280px,100%)!important;
-  margin-left:auto!important;
-  margin-right:auto!important;
-}
+.partner-example-row,
 .partner-section{
-  width:min(1380px,100%)!important;
+  width:100%!important;
   margin-left:auto!important;
   margin-right:auto!important;
 }
+.partner-command{margin-top:20px!important}
+.partner-quick-grid-wide{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+}
+.tone-red{background:linear-gradient(180deg,#fff1f1,#fff 72%)}
+.tone-red .partner-tool-icon{background:#ffe0e0;color:#e14b4b}
+.tone-sand{background:linear-gradient(180deg,#fff9ec,#fff 72%)}
+.tone-sand .partner-tool-icon{background:#f7ecd0;color:#9b761d}
+.tone-teal{background:linear-gradient(180deg,#eefbf9,#fff 72%)}
+.tone-teal .partner-tool-icon{background:#dff6f2;color:#1e8c7a}
+
 @media(min-width:1200px){
-  .partner-dashboard{padding-left:54px!important;padding-right:54px!important}
-  .partner-principle{padding:48px 58px 50px!important}
-  .partner-principle h1{max-width:980px!important;font-size:clamp(42px,3.6vw,58px)!important}
+  .partner-dashboard{padding-left:56px!important;padding-right:56px!important}
+  .partner-principle{padding:50px 58px 52px!important}
+  .partner-principle h1{max-width:900px!important;font-size:clamp(44px,3.5vw,60px)!important}
   .partner-command textarea{min-height:132px!important}
   .partner-quick-grid{gap:17px!important}
-  .partner-tool-card{min-height:190px!important;padding:23px!important}
+  .partner-tool-card{min-height:172px!important;padding:22px!important}
+  .partner-lower-grid{grid-template-columns:minmax(0,1.25fr) minmax(360px,.75fr)!important}
 }
 
-/* Pricing header: remove stray logo/text and keep only home navigation */
-.pricing-header-clean{justify-content:flex-end!important;min-height:56px!important}
-.pricing-header-clean .pricing-brand{display:none!important}
-.pricing-header-clean>a{margin-left:auto}
+@media(max-width:1100px){
+  .partner-hero-grid{grid-template-columns:1fr}
+  .partner-hero-side{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:18px}
+  .partner-hero-side>small,.partner-hero-side h2{grid-column:1/-1}
+  .partner-hero-side h2{margin-bottom:4px}
+  .partner-hero-side a{padding:13px 14px;border:1px solid var(--partner-border)!important;border-radius:14px;background:#fafcfa}
+  .partner-quick-grid-wide{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
 
 @media(max-width:900px){
   .partner-home-layout,
   .partner-home-brand,
-  .partner-principle,
   .partner-command,
   .partner-example-row,
   .partner-section{width:100%!important}
+  .partner-quick-grid-wide{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }
 
 @media(max-width:600px){
-  .partner-home-brand{
-    gap:10px!important;
-    margin-bottom:18px!important;
-  }
-  .partner-home-logo{
-    gap:8px!important;
-    min-width:0!important;
-  }
-  .partner-brand-symbol{
-    flex-basis:40px!important;
-    width:40px!important;
-    height:40px!important;
-    min-width:40px!important;
-    background-size:39px 39px!important;
-  }
+  .partner-home-brand{gap:10px!important;margin-bottom:18px!important}
+  .partner-home-logo{gap:8px!important;min-width:0!important}
+  .partner-brand-symbol{flex-basis:40px!important;width:40px!important;height:40px!important;min-width:40px!important}
+  .partner-brand-svg{width:40px;height:40px}
   .partner-home-logo strong{font-size:20px!important}
   .partner-home-logo small{display:none!important}
   .partner-home-brand>p{
@@ -148,17 +183,15 @@
     font-size:12px!important;
     line-height:1.35!important;
   }
+  .partner-hero-side{display:none}
+  .partner-quick-grid-wide{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }
 
-@media(max-width:360px){
-  .partner-home-brand{gap:7px!important}
-  .partner-brand-symbol{
-    flex-basis:36px!important;
-    width:36px!important;
-    height:36px!important;
-    min-width:36px!important;
-    background-size:35px 35px!important;
-  }
-  .partner-home-logo strong{font-size:18px!important}
-  .partner-home-brand>p{max-width:88px!important;font-size:11px!important}
+@media(max-width:390px){
+  .partner-quick-grid-wide{grid-template-columns:1fr!important}
 }
+
+/* Pricing header: remove stray logo/text and keep only home navigation */
+.pricing-header-clean{justify-content:flex-end!important;min-height:56px!important}
+.pricing-header-clean .pricing-brand{display:none!important}
+.pricing-header-clean>a{margin-left:auto}
