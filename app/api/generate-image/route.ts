@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
+import { checkRateLimit } from "../../lib/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -37,7 +38,20 @@ const moodDirections: Record<string, string> = {
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    const rateLimit = checkRateLimit(request, { key: "generate-image", limit: 3, windowMs: 60_000 });
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { success: false, error: "이미지 생성 요청이 많습니다. 잠시 후 다시 시도해 주세요." },
+        { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds) } },
+      );
+    }
+
+    let body: Record<string, unknown>;
+    try {
+      const parsed = await request.json();
+      body = parsed && typeof parsed === "object" ? parsed as Record<string, unknown> : {};
+    }
+    catch { return NextResponse.json({ success: false, error: "요청 형식이 올바르지 않습니다." }, { status: 400 }); }
     const prompt = typeof body?.prompt === "string" ? body.prompt.trim() : "";
     const size = body?.size === "1024x1536" || body?.size === "1536x1024" ? body.size : "1024x1024";
     const type = typeof body?.type === "string" ? body.type : "card";
