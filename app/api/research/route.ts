@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
+import { checkRateLimit } from "../../lib/rate-limit";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -78,13 +79,26 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const key = process.env.OPENAI_API_KEY;
-    if (!key) return NextResponse.json({ success: false, error: "OpenAI API 키가 설정되지 않았습니다." }, { status: 503 });
+    const rateLimit = checkRateLimit(request, { key: "research", limit: 8, windowMs: 60_000 });
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { success: false, error: "말씀 연구 요청이 많습니다. 잠시 후 다시 시도해 주세요." },
+        { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds) } },
+      );
+    }
 
-    const body = await request.json();
+    let body: Record<string, unknown>;
+    try {
+      const parsed = await request.json();
+      body = parsed && typeof parsed === "object" ? parsed as Record<string, unknown> : {};
+    }
+    catch { return NextResponse.json({ success: false, error: "요청 형식이 올바르지 않습니다." }, { status: 400 }); }
     const passage = typeof body?.passage === "string" ? body.passage.trim() : "";
     if (!passage) return NextResponse.json({ success: false, error: "본문을 입력해 주세요." }, { status: 400 });
     if (passage.length > 200) return NextResponse.json({ success: false, error: "본문 입력은 200자 이하로 줄여 주세요." }, { status: 400 });
+
+    const key = process.env.OPENAI_API_KEY;
+    if (!key) return NextResponse.json({ success: false, error: "OpenAI API 키가 설정되지 않았습니다." }, { status: 503 });
 
     const client = new OpenAI({ apiKey: key, timeout: 52000, maxRetries: 1 });
     const model = process.env.OPENAI_RESEARCH_MODEL || "gpt-4.1-mini";
