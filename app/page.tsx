@@ -30,12 +30,12 @@ function displayName(value: string) {
   return cleaned || "사역자";
 }
 
-function BrandMark() {
+function HomeLogoMark() {
   return (
-    <svg className="partner-brand-svg" viewBox="0 0 64 52" aria-hidden="true">
-      <path d="M4 14c10-4 18-2 26 5v27c-8-7-16-9-26-5V14Z" fill="currentColor" />
-      <path d="M60 14c-10-4-18-2-26 5v27c8-7 16-9 26-5V14Z" fill="currentColor" opacity=".84" />
-      <circle cx="32" cy="7" r="4" fill="#f59e0b" />
+    <svg className="home-v5-logo-mark" viewBox="0 0 54 54" aria-hidden="true">
+      <path d="M8 14.5c7.7-2.8 14.2-1.6 19 3.8v25.2c-5.5-4.8-11.8-6.2-19-3.7V14.5Z" />
+      <path d="M46 14.5c-7.7-2.8-14.2-1.6-19 3.8v25.2c5.5-4.8 11.8-6.2 19-3.7V14.5Z" opacity=".78" />
+      <circle cx="27" cy="7" r="3.5" />
     </svg>
   );
 }
@@ -117,24 +117,29 @@ export default function Home() {
   }
 
   return (
-    <main className="partner-dashboard">
-      <div className="partner-home-layout">
-        <header className="partner-home-brand">
-          <Link href="/" className="partner-home-logo" aria-label="사역파트너 홈">
-            <span className="partner-brand-symbol"><BrandMark /></span>
-            <span className="partner-brand-copy"><strong>사역파트너</strong><small>MINISTRY PARTNER</small></span>
+    <main className="partner-dashboard home-v5-page">
+      <div className="partner-home-layout home-v5-wrap">
+        <header className="home-v5-header">
+          <Link href="/" className="home-v5-logo" aria-label="사역파트너 홈">
+            <HomeLogoMark />
+            <span className="home-v5-logo-copy">
+              <strong>사역파트너</strong>
+              <small>MINISTRY PARTNER</small>
+            </span>
           </Link>
-          <p>안녕하세요, {name}님</p>
+          <p className="home-v5-greeting">안녕하세요, {name}님</p>
         </header>
 
-        <section className="partner-principle">
-          <span className="partner-principle-label">사역파트너의 원칙</span>
-          <h1><span>사역을 대신하지 않습니다.</span><span>사역에 더 집중하도록 돕습니다.</span></h1>
+        <section className="home-v5-hero">
+          <span className="home-v5-eyebrow">사역파트너의 원칙</span>
+          <h1>
+            <span>사역을 대신하지 않습니다.</span>
+            <span>사역에 더 집중하도록 돕습니다.</span>
+          </h1>
           <p>말씀과 기도, 사역자의 신학적 검토와 분별을 중심에 둡니다.</p>
-          <span className="partner-principle-watermark" aria-hidden="true">MP</span>
         </section>
 
-        <form className="partner-command" onSubmit={submit}>
+        <form className="partner-command home-v5-command" onSubmit={submit}>
           <div className="partner-command-label">
             <span>오늘 무엇을 준비하시나요?</span>
             <small>한 문장으로 편하게 적어주세요</small>
