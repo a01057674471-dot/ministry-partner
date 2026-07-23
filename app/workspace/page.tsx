@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 
 type Message = { id: number; role: "user" | "assistant"; content: string; createdAt: string };
 type Project = {
@@ -72,18 +73,20 @@ export default function WorkspacePage() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
 
   useEffect(() => {
     const raw = localStorage.getItem("ministry-partner-projects-v3");
     const params = new URLSearchParams(window.location.search);
     const request = params.get("request")?.trim();
+    const requestedProject = params.get("project")?.trim();
     let next: Project[] = [];
     if (raw) {
       try { next = JSON.parse(raw); } catch { next = []; }
     }
     if (!next.length) next = [newProject(request ? request.slice(0, 30) : "창세기 22장 설교")];
     setProjects(next);
-    setActiveId(next[0].id);
+    setActiveId(next.some((project) => project.id === requestedProject) ? requestedProject! : next[0].id);
     if (request) setInput(request);
   }, []);
 
@@ -151,6 +154,53 @@ export default function WorkspacePage() {
     send();
   }
 
+  function flash(message: string) {
+    setNotice(message);
+    window.setTimeout(() => setNotice(""), 2200);
+  }
+
+  async function copyResult() {
+    if (!lastAssistant) return;
+    await navigator.clipboard.writeText(lastAssistant);
+    flash("결과를 복사했습니다.");
+  }
+
+  function saveResult() {
+    if (!lastAssistant) return;
+    const raw = localStorage.getItem("ministry-workspace-saved");
+    let saved: Array<{ id: number; mode: string; title: string; result: string; createdAt: string }> = [];
+    try {
+      const parsed = raw ? JSON.parse(raw) : [];
+      if (Array.isArray(parsed)) saved = parsed;
+    } catch {
+      saved = [];
+    }
+    const item = {
+      id: Date.now(),
+      mode: active.type,
+      title: active.title,
+      result: lastAssistant,
+      createdAt: new Date().toLocaleString("ko-KR"),
+    };
+    localStorage.setItem("ministry-workspace-saved", JSON.stringify([item, ...saved].slice(0, 30)));
+    flash("결과를 저장했습니다.");
+  }
+
+  async function shareResult() {
+    if (!lastAssistant) return;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: active.title, text: lastAssistant });
+      } else {
+        await navigator.clipboard.writeText(lastAssistant);
+        flash("공유할 결과를 복사했습니다.");
+      }
+    } catch (shareError) {
+      if (shareError instanceof DOMException && shareError.name === "AbortError") return;
+      flash("공유하지 못했습니다. 결과 복사를 이용해 주세요.");
+    }
+  }
+
   if (!active) return null;
 
   return (
@@ -166,13 +216,17 @@ export default function WorkspacePage() {
             </button>
           ))}
         </div>
-        <nav className="ws3-bottom-nav"><a href="/projects">▣ 모든 프로젝트</a><a href="/">⌂ 홈으로</a></nav>
+        <nav className="ws3-bottom-nav"><Link href="/projects">▣ 모든 프로젝트</Link><Link href="/">⌂ 홈으로</Link></nav>
       </aside>
 
       <section className="ws3-center">
         <header className="ws3-header">
           <div><input value={active.title} onChange={(e) => updateActive((project) => ({ ...project, title: e.target.value, updatedAt: new Date().toISOString() }))} /><p>마지막 저장 {relativeTime(active.updatedAt)} · <b>자동 저장됨</b></p></div>
-          <button onClick={() => navigator.clipboard.writeText(lastAssistant)}>결과 복사</button>
+          <div>
+            <button onClick={copyResult} disabled={!lastAssistant}>복사</button>
+            <button onClick={saveResult} disabled={!lastAssistant}>저장</button>
+            <button onClick={shareResult} disabled={!lastAssistant}>공유</button>
+          </div>
         </header>
 
         <div className="ws3-chat">
@@ -186,6 +240,7 @@ export default function WorkspacePage() {
           ))}
           {loading && <article className="ws3-message assistant"><div className="ws3-message-label">사역파트너</div><div className="ws3-thinking">내용을 이어서 준비하고 있습니다…</div></article>}
           {error && <div className="ws3-error">{error}</div>}
+          {notice && <div className="ws3-notice" role="status">{notice}</div>}
         </div>
 
         {lastAssistant && <section className="ws3-actions"><div className="ws3-actions-head"><strong>빠른 작업</strong><span>현재 결과를 이어서 발전시킵니다</span></div><div>{quickActions.map(([label, prompt]) => <button key={label} disabled={loading} onClick={() => send(prompt)}>{label}</button>)}</div></section>}
