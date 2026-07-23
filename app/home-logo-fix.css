@@ -1,19 +1,25 @@
-/* Final home brand lockup: selected MP symbol, no pseudo-text overlap */
-.partner-home-layout{width:min(1120px,100%)!important;margin-inline:auto!important}
-.partner-dashboard-main{width:100%!important;margin-inline:auto!important}
+/* Home desktop layout and clean MP brand lockup */
+.partner-home-layout{
+  width:min(1380px,100%)!important;
+  margin-inline:auto!important;
+}
+.partner-dashboard-main{
+  width:100%!important;
+  margin-inline:auto!important;
+}
 .partner-home-brand{
-  width:min(1040px,100%)!important;
-  margin:0 auto 26px!important;
+  width:min(1280px,100%)!important;
+  margin:0 auto 30px!important;
   display:flex!important;
   align-items:center!important;
   justify-content:space-between!important;
-  gap:24px!important;
+  gap:28px!important;
 }
 .partner-home-logo{
   display:inline-flex!important;
   align-items:center!important;
   flex:0 0 auto!important;
-  gap:12px!important;
+  gap:13px!important;
   min-width:max-content!important;
   max-width:none!important;
   overflow:visible!important;
@@ -36,7 +42,7 @@
   word-break:keep-all!important;
   overflow:visible!important;
   text-overflow:clip!important;
-  font-size:25px!important;
+  font-size:26px!important;
   line-height:1.08!important;
   letter-spacing:-.055em!important;
 }
@@ -49,22 +55,24 @@
   line-height:1.2!important;
   letter-spacing:.14em!important;
 }
+
+/* Transparent MP monogram: no green/white box, border or shadow */
 .partner-brand-symbol{
   position:relative!important;
   display:block!important;
-  flex:0 0 50px!important;
-  width:50px!important;
-  height:50px!important;
-  min-width:50px!important;
-  border-radius:16px!important;
-  overflow:hidden!important;
-  border:1px solid rgba(47,112,88,.14)!important;
-  box-shadow:0 10px 28px rgba(29,71,55,.10)!important;
-  background-color:rgba(255,255,255,.96)!important;
+  flex:0 0 48px!important;
+  width:48px!important;
+  height:48px!important;
+  min-width:48px!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  background-color:transparent!important;
   background-repeat:no-repeat!important;
   background-position:center!important;
-  background-size:40px 40px!important;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='1' y='1' width='62' height='62' rx='17' fill='%23ffffff'/%3E%3Cpath d='M14 43V20h7l11 14 11-14h7v23h-8V31L32 44 22 31v12z' fill='%23153f33'/%3E%3Cpath d='M48 10l1.8 4.2L54 16l-4.2 1.8L48 22l-1.8-4.2L42 16l4.2-1.8z' fill='%23f59e0b'/%3E%3C/svg%3E")!important;
+  background-size:46px 46px!important;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M8 47V17h9l15 19 15-19h9v30H46V31L32 49 18 31v16z' fill='%23153f33'/%3E%3Cpath d='M50 5l2.1 5L57 12l-4.9 2.1L50 19l-2.1-4.9L43 12l4.9-2z' fill='%23f59e0b'/%3E%3C/svg%3E")!important;
+  overflow:visible!important;
 }
 .partner-brand-symbol i,
 .partner-brand-symbol::before,
@@ -77,17 +85,45 @@
   margin:0!important;
   white-space:nowrap!important;
 }
-.partner-principle,.partner-command,.partner-example-row{width:min(1040px,100%)!important;margin-left:auto!important;margin-right:auto!important}
-.partner-section{width:min(1120px,100%)!important;margin-left:auto!important;margin-right:auto!important}
+
+/* Use desktop space instead of stretching a mobile-width column */
+.partner-principle,
+.partner-command,
+.partner-example-row{
+  width:min(1280px,100%)!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+.partner-section{
+  width:min(1380px,100%)!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+@media(min-width:1200px){
+  .partner-dashboard{padding-left:54px!important;padding-right:54px!important}
+  .partner-principle{padding:48px 58px 50px!important}
+  .partner-principle h1{max-width:980px!important;font-size:clamp(42px,3.6vw,58px)!important}
+  .partner-command textarea{min-height:132px!important}
+  .partner-quick-grid{gap:17px!important}
+  .partner-tool-card{min-height:190px!important;padding:23px!important}
+}
 
 /* Pricing header: remove stray logo/text and keep only home navigation */
 .pricing-header-clean{justify-content:flex-end!important;min-height:56px!important}
 .pricing-header-clean .pricing-brand{display:none!important}
 .pricing-header-clean>a{margin-left:auto}
 
+@media(max-width:900px){
+  .partner-home-layout,
+  .partner-home-brand,
+  .partner-principle,
+  .partner-command,
+  .partner-example-row,
+  .partner-section{width:100%!important}
+}
+
 @media(max-width:600px){
   .partner-home-brand{
-    width:100%!important;
     gap:10px!important;
     margin-bottom:18px!important;
   }
@@ -96,12 +132,11 @@
     min-width:0!important;
   }
   .partner-brand-symbol{
-    flex-basis:42px!important;
-    width:42px!important;
-    height:42px!important;
-    min-width:42px!important;
-    border-radius:13px!important;
-    background-size:35px 35px!important;
+    flex-basis:40px!important;
+    width:40px!important;
+    height:40px!important;
+    min-width:40px!important;
+    background-size:39px 39px!important;
   }
   .partner-home-logo strong{font-size:20px!important}
   .partner-home-logo small{display:none!important}
@@ -113,17 +148,16 @@
     font-size:12px!important;
     line-height:1.35!important;
   }
-  .partner-home-layout{width:100%!important}
 }
 
 @media(max-width:360px){
   .partner-home-brand{gap:7px!important}
   .partner-brand-symbol{
-    flex-basis:38px!important;
-    width:38px!important;
-    height:38px!important;
-    min-width:38px!important;
-    background-size:32px 32px!important;
+    flex-basis:36px!important;
+    width:36px!important;
+    height:36px!important;
+    min-width:36px!important;
+    background-size:35px 35px!important;
   }
   .partner-home-logo strong{font-size:18px!important}
   .partner-home-brand>p{max-width:88px!important;font-size:11px!important}
