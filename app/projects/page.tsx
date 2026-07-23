@@ -1,23 +1,25 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 
-type Project = { id: number; title: string; type: string; progress: number; due: string; updated: string; icon: string; favorite?: boolean };
-
-const starterProjects: Project[] = [
-  { id: 1, title: "창세기 22장 설교", type: "설교", progress: 65, due: "D-3", updated: "7분 전", icon: "📖", favorite: true },
-  { id: 2, title: "주일 대표기도", type: "기도", progress: 80, due: "D-1", updated: "1시간 전", icon: "🙏" },
-  { id: 3, title: "청년부 카드뉴스", type: "이미지", progress: 40, due: "D-5", updated: "3시간 전", icon: "🎨" },
-  { id: 4, title: "유튜브 쇼츠", type: "쇼츠", progress: 60, due: "이번 주", updated: "어제", icon: "▶" },
-  { id: 5, title: "주보 5월 3주", type: "문서", progress: 70, due: "D-2", updated: "어제", icon: "📄" },
-];
+type Project = { id: string; title: string; type: string; progress: number; due: string; updated: string; icon: string; favorite?: boolean };
+type WorkspaceProject = {
+  id: string;
+  title: string;
+  type: string;
+  progress: number;
+  updatedAt: string;
+  messages: unknown[];
+  steps: { label: string; done: boolean }[];
+};
 
 const typeInfo: Record<string, { icon: string; href: string }> = {
   설교: { icon: "📖", href: "/sermon" }, 기도: { icon: "🙏", href: "/prayer" }, 이미지: { icon: "🎨", href: "/image-content" }, 쇼츠: { icon: "▶", href: "/youtube-shorts" }, 문서: { icon: "📄", href: "/document" }, 기타: { icon: "✦", href: "/workspace" },
 };
 
 export default function ProjectsPage() {
-  const [projects, setProjects] = useState<Project[]>(starterProjects);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("전체");
   const [showNew, setShowNew] = useState(false);
@@ -25,16 +27,54 @@ export default function ProjectsPage() {
   const [type, setType] = useState("설교");
 
   useEffect(() => {
-    const saved = localStorage.getItem("ministry-partner-projects");
-    if (saved) { try { setProjects(JSON.parse(saved)); } catch {} }
+    const saved = localStorage.getItem("ministry-partner-projects-v3");
+    if (!saved) return;
+    try {
+      const parsed = JSON.parse(saved) as WorkspaceProject[];
+      if (!Array.isArray(parsed)) return;
+      const labels: Record<string, string> = { sermon: "설교", prayer: "기도", cardnews: "이미지", shorts: "쇼츠", document: "문서" };
+      setProjects(parsed.map((project) => {
+        const type = labels[project.type] || "기타";
+        return {
+          id: String(project.id),
+          title: project.title,
+          type,
+          progress: project.progress || 0,
+          due: "일정 미정",
+          updated: project.updatedAt ? new Date(project.updatedAt).toLocaleString("ko-KR") : "저장됨",
+          icon: typeInfo[type]?.icon || typeInfo.기타.icon,
+        };
+      }));
+    } catch {
+      setProjects([]);
+    }
   }, []);
 
-  function save(next: Project[]) { setProjects(next); localStorage.setItem("ministry-partner-projects", JSON.stringify(next)); }
+  function save(next: Project[]) { setProjects(next); }
   function createProject(event: FormEvent) {
     event.preventDefault();
     if (!title.trim()) return;
     const info = typeInfo[type] ?? typeInfo.기타;
-    save([{ id: Date.now(), title: title.trim(), type, progress: 0, due: "일정 미정", updated: "방금", icon: info.icon }, ...projects]);
+    const id = String(Date.now());
+    const typeIds: Record<string, string> = { 설교: "sermon", 기도: "prayer", 이미지: "cardnews", 쇼츠: "shorts", 문서: "document", 기타: "sermon" };
+    const workspaceProject: WorkspaceProject = {
+      id,
+      title: title.trim(),
+      type: typeIds[type] || "sermon",
+      progress: 0,
+      updatedAt: new Date().toISOString(),
+      messages: [],
+      steps: ["말씀 연구", "설교 초안", "예화", "PPT", "카드뉴스", "쇼츠", "완료"].map((label, index) => ({ label, done: index === 0 })),
+    };
+    let stored: WorkspaceProject[] = [];
+    try {
+      const parsed = JSON.parse(localStorage.getItem("ministry-partner-projects-v3") || "[]");
+      if (Array.isArray(parsed)) stored = parsed;
+    } catch {
+      stored = [];
+    }
+    localStorage.setItem("ministry-partner-projects-v3", JSON.stringify([workspaceProject, ...stored]));
+    save([{ id, title: title.trim(), type, progress: 0, due: "일정 미정", updated: "방금", icon: info.icon }, ...projects]);
     setTitle(""); setShowNew(false);
   }
 
@@ -58,17 +98,17 @@ export default function ProjectsPage() {
         <aside className="projects-v3-list">
           <div className="projects-v3-list-head"><strong>프로젝트 목록</strong><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="검색" /></div>
           <div className="projects-v3-filters">{["전체", "설교", "기도", "이미지", "쇼츠", "문서"].map((item) => <button key={item} className={filter === item ? "active" : ""} onClick={() => setFilter(item)}>{item}</button>)}</div>
-          <div className="projects-v3-items">{visible.map((project) => <a key={project.id} href={`${typeInfo[project.type]?.href ?? "/workspace"}?request=${encodeURIComponent(project.title)}`}><span>{project.icon}</span><div><strong>{project.title}</strong><small>{project.type} · {project.updated}</small></div><b>→</b></a>)}</div>
+          <div className="projects-v3-items">{visible.map((project) => <Link key={project.id} href={`/workspace?project=${encodeURIComponent(project.id)}`}><span>{project.icon}</span><div><strong>{project.title}</strong><small>{project.type} · {project.updated}</small></div><b>→</b></Link>)}</div>
           {visible.length === 0 && <div className="project-empty">조건에 맞는 프로젝트가 없습니다.</div>}
         </aside>
 
         <section className="projects-v3-board">
-          <div className="projects-v3-board-head"><div><span>이번 주 사역</span><h2>진행 상황</h2></div><a href="/roadmap">교회 로드맵 보기 →</a></div>
+          <div className="projects-v3-board-head"><div><span>이번 주 사역</span><h2>진행 상황</h2></div><Link href="/roadmap">교회 로드맵 보기 →</Link></div>
           <div className="projects-v3-grid">{visible.map((project) => <article key={project.id}>
             <div className="project-card-top"><span className="project-card-icon">{project.icon}</span><button onClick={() => save(projects.map((item) => item.id === project.id ? { ...item, favorite: !item.favorite } : item))}>{project.favorite ? "★" : "☆"}</button></div>
             <div className="project-type">{project.type}</div><h3>{project.title}</h3><p>최근 수정 {project.updated}</p>
             <div className="project-progress-head"><span>진행률</span><strong>{project.progress}%</strong></div><div className="mp-progress"><i style={{ width: `${project.progress}%` }} /></div>
-            <div className="project-card-bottom"><span>{project.due}</span><a href={`${typeInfo[project.type]?.href ?? "/workspace"}?request=${encodeURIComponent(project.title)}`}>열기 →</a></div>
+            <div className="project-card-bottom"><span>{project.due}</span><Link href={`/workspace?project=${encodeURIComponent(project.id)}`}>열기 →</Link></div>
           </article>)}</div>
         </section>
       </section>
