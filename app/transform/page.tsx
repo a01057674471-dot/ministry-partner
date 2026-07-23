@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 
 type Message = { id: number; role: "user" | "assistant"; content: string; createdAt: string };
 type Project = { id: string; title: string; type: string; progress: number; updatedAt: string; messages: Message[] };
@@ -103,13 +104,13 @@ export default function TransformPage() {
   return (
     <main className="tc-shell">
       <aside className="tc-sidebar">
-        <a href="/" className="tc-brand"><span>✦</span><strong>목회파트너</strong></a>
-        <nav><a href="/">⌂ 홈</a><a href="/projects">▣ 프로젝트</a><a href="/workspace">▤ 작업공간</a><a className="active" href="/transform">♲ 변환센터</a><a href="/file-analysis">▧ 자료실</a></nav>
+        <Link href="/" className="tc-brand"><span>✦</span><strong>사역파트너</strong></Link>
+        <nav><Link href="/">⌂ 홈</Link><Link href="/projects">▣ 프로젝트</Link><Link href="/workspace">▤ 작업공간</Link><Link className="active" href="/transform">♲ 변환센터</Link><Link href="/file-analysis">▧ 자료실</Link></nav>
         <div className="tc-projects"><p>원본 프로젝트</p>{projects.length ? projects.map((project) => <button key={project.id} className={project.id === projectId ? "active" : ""} onClick={() => setProjectId(project.id)}><strong>{project.title}</strong><small>{project.progress}% 진행</small></button>) : <div className="tc-no-project">작업공간에서 프로젝트를 먼저 만들어 주세요.</div>}</div>
       </aside>
 
       <section className="tc-main">
-        <header className="tc-header"><div><p>CONTENT TRANSFORM</p><h1>변환센터</h1><span>한 번 만든 사역 자료를 여러 콘텐츠로 재사용하세요.</span></div><a href="/workspace">작업공간으로 →</a></header>
+        <header className="tc-header"><div><p>CONTENT TRANSFORM</p><h1>변환센터</h1><span>한 번 만든 사역 자료를 여러 콘텐츠로 재사용하세요.</span></div><Link href="/workspace">작업공간으로 →</Link></header>
 
         <div className="tc-layout">
           <section className="tc-work">
