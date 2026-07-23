@@ -5,10 +5,15 @@ import { getSupabaseBrowserClient } from "../lib/supabase-client";
 
 const SYNC_KEYS = [
   "ministry-partner-projects-v3",
+  "ministry-partner-schedule-v1",
+  "ministry-workspace-saved",
+  "ministry-research-saved",
   "ministry-library-favorites",
   "ministry-library-custom",
-  "ministry-transform-history-v1",
+  "ministry-partner-transform-history",
   "ministry-partner-name",
+  "ministry-partner-denomination",
+  "ministry-partner-theology",
 ];
 
 export default function CloudSyncBridge() {
@@ -35,7 +40,11 @@ export default function CloudSyncBridge() {
 
       for (const row of data || []) {
         if (row?.document_key && row?.content !== undefined && row?.content !== null) {
-          originalSetItem(row.document_key, typeof row.content === "string" ? row.content : JSON.stringify(row.content));
+          // Never overwrite data already created on this device during automatic restore.
+          // A manual cloud save remains available from the account page.
+          if (window.localStorage.getItem(row.document_key) === null) {
+            originalSetItem(row.document_key, typeof row.content === "string" ? row.content : JSON.stringify(row.content));
+          }
         }
       }
       window.dispatchEvent(new Event("ministry-cloud-restored"));
