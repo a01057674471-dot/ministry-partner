@@ -103,18 +103,22 @@ export default function ImageContentPage() {
     if (resizeRef.current) {
       const delta = event.clientX - resizeRef.current.startX;
       const next = Math.max(18, Math.min(140, resizeRef.current.startSize + delta / 3));
-      resizeRef.current.target === "title"
-        ? setTitleLayer((value) => ({ ...value, size: next }))
-        : setSubLayer((value) => ({ ...value, size: next }));
+      if (resizeRef.current.target === "title") {
+        setTitleLayer((value) => ({ ...value, size: next }));
+      } else {
+        setSubLayer((value) => ({ ...value, size: next }));
+      }
       return;
     }
     if (!dragRef.current || !previewRef.current) return;
     const rect = previewRef.current.getBoundingClientRect();
     const x = Math.max(4, Math.min(96, ((event.clientX - rect.left) / rect.width) * 100));
     const y = Math.max(5, Math.min(95, ((event.clientY - rect.top) / rect.height) * 100));
-    dragRef.current === "title"
-      ? setTitleLayer((value) => ({ ...value, x, y }))
-      : setSubLayer((value) => ({ ...value, x, y }));
+    if (dragRef.current === "title") {
+      setTitleLayer((value) => ({ ...value, x, y }));
+    } else {
+      setSubLayer((value) => ({ ...value, x, y }));
+    }
   }
 
   function startResize(event: PointerEvent<HTMLButtonElement>, target: Target, currentSize: number) {
@@ -245,6 +249,8 @@ export default function ImageContentPage() {
             {loading ? <div className="result-paper">글자 없는 배경을 만들고 있습니다.</div> : imageUrl ? <>
               <div className="design-help">글자를 끌어 이동하고, 모서리 점을 끌어 크기를 조절하세요.</div>
               <div className="image-v3-preview design-canvas" ref={previewRef} onPointerMove={move} onPointerUp={end} onPointerCancel={end}>
+                {/* Generated images are data URLs and cannot use the Next image optimizer. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={imageUrl} alt="편집할 이미지" />
                 {textLayer("title", title, titleLayer, titleRef)}
                 {textLayer("subtitle", subtitle, subLayer, subtitleRef)}
