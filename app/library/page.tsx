@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 type Resource = {
@@ -76,7 +77,7 @@ export default function LibraryPage() {
     setFavorites((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
   }
 
-  function useInWorkspace(resource: Resource) {
+  function sendToWorkspace(resource: Resource) {
     const prompt = `다음 자료를 바탕으로 사역 결과물을 발전시켜 주세요.\n\n[자료명] ${resource.title}\n[분류] ${resource.category}\n[내용]\n${resource.content}`;
     router.push(`/workspace?request=${encodeURIComponent(prompt)}`);
   }
@@ -114,8 +115,8 @@ export default function LibraryPage() {
   return (
     <main className="lib-shell">
       <aside className="lib-sidebar">
-        <a className="lib-brand" href="/"><span>✦</span><strong>목회파트너</strong></a>
-        <a className="lib-back" href="/">← 홈으로</a>
+        <Link className="lib-brand" href="/"><span>✦</span><strong>사역파트너</strong></Link>
+        <Link className="lib-back" href="/">← 홈으로</Link>
         <p>자료 분류</p>
         <nav>{categories.map((item) => <button className={category === item ? "active" : ""} key={item} onClick={() => setCategory(item)}>{item === "즐겨찾기" ? "★" : ""} {item}<span>{item === "전체" ? resources.length : item === "즐겨찾기" ? favorites.length : resources.filter((r) => r.category === item).length}</span></button>)}</nav>
       </aside>
@@ -154,7 +155,7 @@ export default function LibraryPage() {
           {selected.custom && <button className="danger" onClick={() => removeCustom(selected)}>삭제</button>}
           <button onClick={() => toggleFavorite(selected.id)}>{favorites.includes(selected.id) ? "★ 즐겨찾기 해제" : "☆ 즐겨찾기"}</button>
           <button onClick={() => copy(selected.content)}>내용 복사</button>
-          <button className="primary" onClick={() => useInWorkspace(selected)}>작업공간에서 사용 →</button>
+          <button className="primary" onClick={() => sendToWorkspace(selected)}>작업공간에서 사용 →</button>
         </footer>
       </section></div>}
 
