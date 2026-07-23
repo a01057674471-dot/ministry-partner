@@ -1,6 +1,7 @@
 "use client";
 
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 
 type Mode = "sermon" | "prayer" | "roadmap" | "worship" | "document" | "meeting" | "shorts" | "youtube" | "file";
 type SavedItem = { id: number; mode: Mode; title: string; result: string; createdAt: string };
@@ -110,8 +111,8 @@ export default function WorkspaceTool({ fixedMode }: { fixedMode?: Mode }) {
   const roadmapVisible = showAdvancedRoadmap ? roadmapQuestions : roadmapQuestions.slice(0, essentialRoadmapCount);
 
   return <main className="workspace-shell">
-    {!fixedMode && <aside className="workspace-sidebar"><a href="/" className="brand"><span className="brand-mark">↔</span><span>사역파트너</span></a><p className="sidebar-label">PARTNER WORKSPACE</p><nav className="workspace-nav">{modes.map((item)=><a key={item.id} className={mode===item.id?"active":""} href={item.href}><span>{item.icon}</span><div><strong>{item.title}</strong><small>{item.desc}</small></div></a>)}</nav></aside>}
-    <section className="workspace-main"><header className="workspace-head"><div><div className="eyebrow">MINISTRY PARTNER</div><h1>{active.icon} {active.title}</h1><p>{active.desc}</p></div><a className="button button-secondary" href="/">홈으로</a></header>
+    {!fixedMode && <aside className="workspace-sidebar"><Link href="/" className="brand"><span className="brand-mark">↔</span><span>사역파트너</span></Link><p className="sidebar-label">PARTNER WORKSPACE</p><nav className="workspace-nav">{modes.map((item)=><Link key={item.id} className={mode===item.id?"active":""} href={item.href}><span>{item.icon}</span><div><strong>{item.title}</strong><small>{item.desc}</small></div></Link>)}</nav></aside>}
+    <section className="workspace-main"><header className="workspace-head"><div><div className="eyebrow">MINISTRY PARTNER</div><h1>{active.icon} {active.title}</h1><p>{active.desc}</p></div><Link className="button button-secondary" href="/">홈으로</Link></header>
       <div className="workspace-grid"><section className="workspace-editor">
         {mode==="roadmap" ? <div className="question-form"><div className="notice"><strong>필수 질문 5개부터 시작합니다.</strong><br/>나머지는 더 정교한 계획이 필요할 때만 작성하세요.</div>{roadmapVisible.map((q,i)=><label key={q}><strong>{i+1}. {q}</strong><textarea rows={2} value={roadmapAnswers[i]} onChange={(e)=>setRoadmapAnswers(roadmapAnswers.map((v,n)=>n===i?e.target.value:v))} placeholder="간단히 적어도 됩니다."/></label>)}<button type="button" className="button button-secondary roadmap-more" onClick={()=>setShowAdvancedRoadmap(!showAdvancedRoadmap)}>{showAdvancedRoadmap ? "추가 질문 접기" : "추가 질문 5개 열기"}</button><textarea value={topic} onChange={(e)=>setTopic(e.target.value)} placeholder={active.placeholder}/></div> : mode==="prayer" ? renderFields(prayerQuestions, prayerAnswers, setPrayerAnswers) : mode==="worship" ? <div className="question-form"><div className="notice">본문, 주제, 예배 종류만 입력하면 됩니다.</div>{worshipQuestions.map((q,i)=><label key={q.label}><strong>{q.label}</strong><input value={worshipAnswers[i]} onChange={(e)=>setWorshipAnswers(worshipAnswers.map((v,n)=>n===i?e.target.value:v))} placeholder={q.placeholder}/></label>)}</div> : <>{mode==="file"&&<label className="upload-box">파일 선택<input type="file" accept=".txt,.md,.csv,.json" onChange={onFile}/></label>}<textarea value={topic} onChange={(e)=>setTopic(e.target.value)} placeholder={active.placeholder}/></>}
         <div className="editor-actions"><button className="button button-primary" onClick={generate} disabled={loading}>{loading?"파트너가 준비 중…":"파트너에게 요청하기"}</button><button className="button button-secondary" onClick={clearAll}>비우기</button></div>{error&&<div className="notice error">{error}</div>}
