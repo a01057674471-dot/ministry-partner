@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-const supportedTools = ["sermon", "prayer", "worship", "shorts", "cardnews", "ideas", "thumbnail", "devotional", "roadmap", "document", "meeting", "youtube", "file"] as const;
+const supportedTools = ["sermon", "sermoncontent", "prayer", "worship", "shorts", "cardnews", "ideas", "thumbnail", "devotional", "roadmap", "document", "meeting", "youtube", "file"] as const;
 type ToolType = (typeof supportedTools)[number];
 
 const prompts: Record<ToolType, string> = {
@@ -24,6 +24,21 @@ const prompts: Record<ToolType, string> = {
 13) PPT 슬라이드 요약 8장
 14) 해석상 주의점
 확인하지 못한 출처나 사실을 꾸며내지 마세요. 결과는 사역자의 묵상과 분별을 돕는 초안이며 설교를 대신하지 않는다는 원칙을 지키세요.`,
+  sermoncontent: `당신은 이미 작성된 설교 원고를 여러 사역 콘텐츠로 정확하게 재구성하는 편집자입니다. 새로운 신학 주장이나 설교자의 의도에 없는 내용을 보태지 말고, 입력된 설교의 본문·핵심 메시지·논리·적용을 유지하세요.
+
+아래 10개 결과를 반드시 번호와 제목을 붙여 순서대로 작성하세요.
+1) 핵심 요약: 설교 제목, 본문, 핵심 메시지 한 문장, 대지 요약 3개 이내
+2) QT 묵상: 오늘의 말씀, 묵상 글, 돌아볼 질문 3개, 짧은 기도
+3) 소그룹 나눔: 시작 질문 1개, 본문 관찰 2개, 의미 질문 2개, 적용 질문 3개, 함께 기도할 제목 2개
+4) 카드뉴스 7장: 각 장의 짧은 제목과 본문 문구. 모바일에서 바로 읽을 수 있게 간결하게
+5) SNS 게시글: 인스타그램 또는 교회 SNS에 바로 올릴 수 있는 본문, 마무리 질문, 해시태그 5개 이내
+6) 쇼츠 대본: 45~60초, 첫 2초 훅, 장면별 대사와 화면 자막, 마무리 질문
+7) 공동체 기도문: 설교에 응답하는 1분 내외 기도문
+8) 청소년·새신자용 설명: 어려운 신학 용어를 풀어 쓴 500자 이내 설명
+9) 주보 요약: 제목, 본문, 핵심 문장, 대지 3개 이내, 이번 주 실천 1개
+10) 제목·홍보 문구: 설교 제목 대안 5개, 썸네일 문구 5개, 예배 후 공유 문구 3개
+
+성경 구절을 원고에 없는데 정확한 인용처럼 추가하지 마세요. 원고의 해석이 불명확하거나 신학적 검토가 필요한 부분은 마지막에 '사역자 검토사항'으로 짧게 표시하세요. 결과는 초안이며 사역자가 본문 문맥과 공동체 상황에 맞게 검토해야 합니다.`,
   prayer: `당신은 공예배와 사역 현장의 기도문 작성을 돕는 조교입니다. 사용자가 입력한 예배 종류, 기도 시간, 공동체, 포함할 내용, 분위기에 맞춰 실제로 낭독하기 자연스러운 기도문을 작성하세요. 하나님을 높이는 감사, 회개, 공동체, 세상과 선교, 말씀을 전하는 사역자, 결단의 흐름을 상황에 맞게 구성하세요. 입력하지 않은 구체적 사건이나 이름은 꾸며내지 마세요.`,
   worship: `당신은 건강한 복음주의 예배신학과 한국 교회 찬양 현장을 이해하는 찬양 플래너입니다. 사용자가 입력한 예배 종류, 설교 본문, 핵심 주제, 회중, 분위기와 순서에 맞는 찬송가·복음성가·CCM을 추천하세요.
 반드시 다음을 포함하세요.
@@ -51,7 +66,7 @@ const prompts: Record<ToolType, string> = {
   thumbnail: "입력 주제에 맞는 쇼츠 썸네일 문구 10개와 이미지 생성 프롬프트 3개를 작성하세요. 문구는 짧고 가독성 있게 작성하세요.",
   devotional: "입력한 성경 본문이나 주제로 짧은 묵상 콘텐츠를 작성하세요. 본문 요약, 오늘의 질문 3개, 기도문, SNS 본문을 포함하되 설교문처럼 단정하지 마세요.",
   roadmap: `당신은 목회자, 전도사, 간사, 선교사, 평신도 리더와 사역팀을 돕는 장기 사역 전략 코치입니다. 입력된 답변을 바탕으로 개인·부서·교회·선교단체 어디에도 적용 가능한 실행 로드맵을 만드세요. 교회 성장 숫자만을 성공 기준으로 삼지 말고 복음적 충실성, 사람의 성장, 지속 가능성, 건강한 관계와 소진 방지를 함께 고려하세요.
-반드시 다음 순서로 작성하세요.
+반드시 다음 순서를 따르세요.
 1) 현재 역할과 사역 환경 요약
 2) 소명과 복음적 핵심 가치
 3) 강점·자원·기회
@@ -76,7 +91,7 @@ const prompts: Record<ToolType, string> = {
 };
 
 const outputLimits: Record<ToolType, number> = {
-  sermon: 7000, prayer: 2200, worship: 3500, shorts: 3500, cardnews: 3200, ideas: 2800, thumbnail: 1800,
+  sermon: 7000, sermoncontent: 8000, prayer: 2200, worship: 3500, shorts: 3500, cardnews: 3200, ideas: 2800, thumbnail: 1800,
   devotional: 1800, roadmap: 6500, document: 4200, meeting: 3000, youtube: 5000, file: 4200,
 };
 
@@ -134,7 +149,7 @@ export async function POST(request: Request) {
     const response = await client.responses.create({
       model: "gpt-5-mini",
       reasoning: { effort: "minimal" },
-      text: { verbosity: "low" },
+      text: { verbosity: toolValue === "sermoncontent" ? "medium" : "low" },
       max_output_tokens: outputLimits[toolValue],
       instructions: "한국어로 명확하고 실무적으로 답하세요. 첫 문장부터 결과를 제시하세요. 사역을 대신하지 않고 사역자의 말씀 묵상, 기도, 신학적 검토와 분별을 돕는다는 원칙을 지키세요. 교단과 신학적 입장이 입력되지 않았다면 건강한 복음주의 개신교의 일반적 범위에서 균형 있게 작성하세요. 확인하지 못한 사실이나 출처를 꾸며내지 마세요.",
       input: `${prompts[toolValue]}\n\n사용자 입력:\n${topic}${metadata}`,
