@@ -5,10 +5,20 @@ import V2Sidebar, { MobileBottomNav } from "./V2Sidebar";
 
 export default function GlobalChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const isHome = pathname === "/";
   const selfContainedRoutes = ["/workspace", "/roadmap", "/image-content", "/library"];
   const isSelfContained = selfContainedRoutes.some((route) => pathname === route || pathname.startsWith(`${route}/`));
 
   if (pathname.startsWith("/api")) return <>{children}</>;
+
+  if (isHome) {
+    return (
+      <>
+        {children}
+        <MobileBottomNav />
+      </>
+    );
+  }
 
   if (isSelfContained) {
     return (
