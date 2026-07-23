@@ -1,11 +1,18 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
 import { getSupabaseBrowserClient, isSupabaseConfigured } from "../lib/supabase-client";
 
 const SYNC_KEYS = [
   ["ministry-partner-projects-v3", "프로젝트와 작업"],
+  ["ministry-partner-schedule-v1", "오늘 일정"],
+  ["ministry-workspace-saved", "저장한 작업 결과"],
+  ["ministry-research-saved", "저장한 말씀 연구"],
+  ["ministry-library-favorites", "자료실 즐겨찾기"],
+  ["ministry-library-custom", "직접 추가한 자료"],
+  ["ministry-partner-transform-history", "콘텐츠 변환 기록"],
   ["ministry-partner-name", "사용자 이름"],
   ["ministry-partner-denomination", "교단 설정"],
   ["ministry-partner-theology", "신학 성향 설정"],
@@ -25,6 +32,14 @@ export default function AccountPage() {
   const configured = isSupabaseConfigured();
 
   useEffect(() => {
+    function applyUser(nextUser: User | null) {
+      setUser(nextUser);
+      if (!nextUser) return;
+      const userName = nextUser.user_metadata?.full_name || nextUser.user_metadata?.name || nextUser.email?.split("@")[0] || "사용자";
+      setName(userName);
+      localStorage.setItem("ministry-partner-name", userName);
+    }
+
     const savedName = localStorage.getItem("ministry-partner-name");
     const savedDenomination = localStorage.getItem("ministry-partner-denomination");
     const savedTheology = localStorage.getItem("ministry-partner-theology");
@@ -37,14 +52,6 @@ export default function AccountPage() {
     const { data } = supabase.auth.onAuthStateChange((_event, session) => applyUser(session?.user ?? null));
     return () => data.subscription.unsubscribe();
   }, []);
-
-  function applyUser(nextUser: User | null) {
-    setUser(nextUser);
-    if (!nextUser) return;
-    const userName = nextUser.user_metadata?.full_name || nextUser.user_metadata?.name || nextUser.email?.split("@")[0] || "사용자";
-    setName(userName);
-    localStorage.setItem("ministry-partner-name", userName);
-  }
 
   function savePreferences() {
     localStorage.setItem("ministry-partner-denomination", denomination);
@@ -62,12 +69,12 @@ export default function AccountPage() {
     setLoading(false);
   }
 
-  async function signInWithGoogle() {
+  async function signInWithKakao() {
     const supabase = getSupabaseBrowserClient();
     if (!supabase) return;
     setMessage("");
-    const { error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${window.location.origin}/account` } });
-    if (error) setMessage("Google 로그인 설정이 아직 완료되지 않았습니다. 이메일 로그인은 바로 사용할 수 있습니다.");
+    const { error } = await supabase.auth.signInWithOAuth({ provider: "kakao", options: { redirectTo: `${window.location.origin}/account` } });
+    if (error) setMessage("카카오 로그인 설정을 확인해 주세요. 이메일 로그인은 계속 사용할 수 있습니다.");
   }
 
   async function syncNow() {
@@ -88,12 +95,12 @@ export default function AccountPage() {
 
   return (
     <main className="account-shell">
-      <header className="account-header"><a href="/" className="account-brand"><span className="brand-mark">↔</span><strong>사역파트너</strong></a><div><a href="/pricing">요금제</a>　<a href="/">홈으로</a></div></header>
+      <header className="account-header"><Link href="/" className="account-brand"><span className="brand-mark">↔</span><strong>사역파트너</strong></Link><div><Link href="/pricing">요금제</Link>　<Link href="/">홈으로</Link></div></header>
       <section className="account-card">
         <p className="account-kicker">계정 및 클라우드</p>
         <h1>{user ? `${name}님, 환영합니다.` : "어디서든 이어서 작업하세요"}</h1>
         <p>{user ? "오늘도 필요한 사역을 편하게 준비해 보세요." : "로그인하면 작업과 설정을 PC와 휴대폰에서 이어서 사용할 수 있습니다."}</p>
-        {!configured ? <div className="account-warning"><strong>Supabase 연결이 필요합니다.</strong><p>Vercel 환경 변수를 확인해 주세요.</p></div> : user ? <div className="account-signed"><div className="account-user"><span>{name.slice(0,1)}</span><div><strong>{name}</strong><p>{user.email}</p></div></div><button className="account-primary" onClick={syncNow} disabled={loading}>{loading ? "동기화 중…" : "지금 클라우드에 저장"}</button><button className="account-secondary" onClick={signOut}>로그아웃</button></div> : <div className="account-login"><button className="account-google" onClick={signInWithGoogle}>Google로 계속하기</button><div className="account-divider"><span>또는</span></div><form onSubmit={sendMagicLink}><label>이메일</label><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="pastor@example.com" required /><button className="account-primary" disabled={loading}>{loading ? "보내는 중…" : "이메일 로그인 링크 받기"}</button></form></div>}
+        {!configured ? <div className="account-warning"><strong>Supabase 연결이 필요합니다.</strong><p>Vercel 환경 변수를 확인해 주세요.</p></div> : user ? <div className="account-signed"><div className="account-user"><span>{name.slice(0,1)}</span><div><strong>{name}</strong><p>{user.email}</p></div></div><button className="account-primary" onClick={syncNow} disabled={loading}>{loading ? "동기화 중…" : "지금 클라우드에 저장"}</button><button className="account-secondary" onClick={signOut}>로그아웃</button></div> : <div className="account-login"><button className="account-google" onClick={signInWithKakao}>카카오로 계속하기</button><div className="account-divider"><span>또는</span></div><form onSubmit={sendMagicLink}><label>이메일</label><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="pastor@example.com" required /><button className="account-primary" disabled={loading}>{loading ? "보내는 중…" : "이메일 로그인 링크 받기"}</button></form></div>}
         {message && <div className="account-message">{message}</div>}
       </section>
       <section className="account-data-card"><h2>교단·신학 성향</h2><p>정답을 강요하는 설정이 아니라, 결과의 표현과 관점을 조정하는 참고값입니다. 모든 결과는 직접 검토해 주세요.</p><div className="account-preference-grid"><label><strong>교단</strong><select value={denomination} onChange={(e)=>setDenomination(e.target.value)}>{denominations.map((item)=><option key={item}>{item}</option>)}</select></label><label><strong>신학 성향</strong><select value={theology} onChange={(e)=>setTheology(e.target.value)}>{theologyOptions.map((item)=><option key={item}>{item}</option>)}</select></label></div><button className="account-primary" onClick={savePreferences}>설정 저장</button></section>
