@@ -50,11 +50,20 @@ function relativeTime(value: string) {
 }
 
 function inferTool(text: string) {
+  if (/카드뉴스|카드 뉴스|인스타.*카드|슬라이드형 콘텐츠/.test(text)) return "cardnews";
   if (/기도/.test(text)) return "prayer";
   if (/회의/.test(text)) return "meeting";
   if (/문서|기획서|보고서|교육안|주보/.test(text)) return "document";
   if (/쇼츠|릴스/.test(text)) return "shorts";
   return "sermon";
+}
+
+function projectIcon(type: string) {
+  if (type === "prayer") return "🙏";
+  if (type === "shorts") return "🎬";
+  if (type === "cardnews") return "▧";
+  if (type === "document") return "📄";
+  return "⌑";
 }
 
 export default function WorkspacePage() {
@@ -99,13 +108,14 @@ export default function WorkspacePage() {
   async function send(text = input) {
     const trimmed = text.trim();
     if (!trimmed || loading || !active) return;
+    const tool = inferTool(trimmed);
     setLoading(true);
     setError("");
     const userMessage: Message = { id: Date.now(), role: "user", content: trimmed, createdAt: new Date().toISOString() };
     updateActive((project) => ({
       ...project,
       title: project.messages.length === 0 && project.title === "새 사역 프로젝트" ? trimmed.slice(0, 32) : project.title,
-      type: inferTool(trimmed),
+      type: tool,
       updatedAt: new Date().toISOString(),
       messages: [...project.messages, userMessage],
     }));
@@ -119,7 +129,7 @@ export default function WorkspacePage() {
       const response = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tool: inferTool(trimmed), topic }),
+        body: JSON.stringify({ tool, topic }),
       });
       const data = await response.json();
       if (!response.ok || !data.success) throw new Error(data.error || "결과를 만들지 못했습니다.");
@@ -151,7 +161,7 @@ export default function WorkspacePage() {
         <div className="ws3-project-list">
           {projects.map((project) => (
             <button key={project.id} className={project.id === activeId ? "active" : ""} onClick={() => setActiveId(project.id)}>
-              <span>{project.type === "prayer" ? "🙏" : project.type === "shorts" ? "🎬" : project.type === "document" ? "📄" : "⌑"}</span>
+              <span>{projectIcon(project.type)}</span>
               <div><strong>{project.title}</strong><small>{relativeTime(project.updatedAt)} · {project.progress}%</small></div>
             </button>
           ))}
