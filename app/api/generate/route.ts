@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-const supportedTools = ["sermon", "prayer", "worship", "shorts", "ideas", "thumbnail", "devotional", "roadmap", "document", "meeting", "youtube", "file"] as const;
+const supportedTools = ["sermon", "prayer", "worship", "shorts", "cardnews", "ideas", "thumbnail", "devotional", "roadmap", "document", "meeting", "youtube", "file"] as const;
 type ToolType = (typeof supportedTools)[number];
 
 const prompts: Record<ToolType, string> = {
@@ -36,6 +36,17 @@ const prompts: Record<ToolType, string> = {
 7) 최종 추천 콘티 표
 곡명이나 작곡자 정보를 확신하지 못하면 지어내지 말고 확인 필요라고 표시하세요. 특정 곡의 가사를 길게 인용하지 마세요. 찬양은 설교 주제를 장식하는 도구가 아니라 하나님께 드리는 예배라는 원칙을 지키세요.`,
   shorts: "60초 이하 한국어 쇼츠 대본을 작성하세요. 첫 2초 훅, 장면별 대사, 화면 자막, 촬영 지시, 마무리 질문, 인스타 본문, 고정댓글, 썸네일 문구 5개를 포함하세요.",
+  cardnews: `당신은 교회와 사역 SNS 카드뉴스 기획자입니다. 사용자의 주제와 대상에 맞는 카드뉴스 완성안을 작성하세요. 설교문이나 설교 초안을 작성하지 마세요.
+반드시 다음 순서로 작성하세요.
+1) 카드뉴스 목표와 핵심 메시지 한 문장
+2) 권장 장수 7장
+3) 1장부터 7장까지 각 장마다: 짧은 제목, 본문 문구, 이미지·배경 방향, 강조할 단어
+4) 표지 문구 후보 3개
+5) 인스타그램 본문
+6) 참여를 유도하는 마지막 질문
+7) 고정댓글
+8) 이미지 제작 시 피해야 할 요소
+각 장의 문구는 모바일에서 읽기 쉽게 짧고 명확하게 작성하고, 청년부 요청이면 청년이 자연스럽게 이해할 표현을 사용하세요. 성경 본문이 주어졌다면 문맥을 벗어나 단정하지 마세요.`,
   ideas: "입력 주제로 사역·성경 SNS 콘텐츠 아이디어 10개를 작성하세요. 각 아이디어마다 제목, 핵심 메시지, 영상 구성, 참여 유도 문장을 포함하세요.",
   thumbnail: "입력 주제에 맞는 쇼츠 썸네일 문구 10개와 이미지 생성 프롬프트 3개를 작성하세요. 문구는 짧고 가독성 있게 작성하세요.",
   devotional: "입력한 성경 본문이나 주제로 짧은 묵상 콘텐츠를 작성하세요. 본문 요약, 오늘의 질문 3개, 기도문, SNS 본문을 포함하되 설교문처럼 단정하지 마세요.",
@@ -65,7 +76,7 @@ const prompts: Record<ToolType, string> = {
 };
 
 const outputLimits: Record<ToolType, number> = {
-  sermon: 7000, prayer: 2200, worship: 3500, shorts: 3500, ideas: 2800, thumbnail: 1800,
+  sermon: 7000, prayer: 2200, worship: 3500, shorts: 3500, cardnews: 3200, ideas: 2800, thumbnail: 1800,
   devotional: 1800, roadmap: 6500, document: 4200, meeting: 3000, youtube: 5000, file: 4200,
 };
 
