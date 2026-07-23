@@ -21,7 +21,7 @@ export default function PricingPage() {
     localStorage.setItem("ministry-partner-trial", JSON.stringify(trial)); setStarted(true);
   }
   return <main className="pricing-shell">
-    <header className="pricing-header"><a href="/" className="pricing-brand"><span>↔</span><strong>사역파트너</strong></a><a href="/">홈으로</a></header>
+    <header className="pricing-header pricing-header-clean"><a href="/">홈으로</a></header>
     <section className="pricing-hero"><div className="opening-sale">오픈 기념 50% 할인 · 한시 적용</div><p>7일 무료 체험</p><h1>한 주의 사역 흐름에서<br/>충분히 사용해 보세요.</h1><span>말씀 연구, 예배 준비, 문서와 디자인을 실제 주간 업무에 적용한 뒤 필요한 플랜을 선택하세요.</span></section>
     <section className="pricing-grid">{plans.map((plan)=><article key={plan.name} className={plan.recommended?"recommended":""}>{plan.recommended&&<b className="pricing-badge">추천</b>}<h2>{plan.name}</h2><p>{plan.desc}</p><div className="pricing-price sale"><del>{plan.original}</del><strong>{plan.price}</strong><small>/ 월</small></div><div className="sale-note">오픈 이벤트 기간 동안 50% 할인</div><ul>{plan.features.map((f)=><li key={f}>✓ {f}</li>)}</ul><button onClick={()=>startTrial(plan.name)}>7일 무료로 시작</button></article>)}</section>
     {started&&<div className="pricing-success"><strong>7일 무료 체험이 시작되었습니다.</strong><p>현재 기기에서 체험 상태가 유지됩니다.</p><a href="/">사역파트너 시작하기 →</a></div>}
