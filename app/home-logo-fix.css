@@ -60,6 +60,22 @@
   line-height:1;
 }
 
+/* Keep the intro visually centered inside the usable viewport */
+.partner-home-layout{width:min(1120px,100%)!important;margin-inline:auto!important}
+.partner-dashboard-main{width:100%;margin-inline:auto}
+.partner-home-brand,.partner-principle,.partner-command,.partner-example-row,.partner-section{width:100%}
+.partner-principle,.partner-command{margin-left:auto;margin-right:auto}
+@media(min-width:1200px){
+  .partner-principle,.partner-command,.partner-example-row{max-width:1040px}
+  .partner-home-brand{max-width:1040px;margin-left:auto;margin-right:auto}
+  .partner-section{max-width:1120px;margin-left:auto;margin-right:auto}
+}
+
+/* Pricing header: remove stray brand area and keep only a quiet home action */
+.pricing-header-clean{justify-content:flex-end!important;min-height:56px!important}
+.pricing-header-clean .pricing-brand{display:none!important}
+.pricing-header-clean>a{margin-left:auto}
+
 @media(max-width:600px){
   .partner-home-brand{align-items:center!important;gap:12px!important}
   .partner-home-logo{gap:9px!important;max-width:calc(100% - 116px)}
@@ -69,6 +85,7 @@
   .partner-home-logo strong{font-size:20px!important;letter-spacing:-.05em!important}
   .partner-home-logo small{display:none!important}
   .partner-home-brand p{flex:0 0 auto;max-width:108px!important;margin-left:auto!important;padding-top:0!important;text-align:right;line-height:1.35}
+  .partner-home-layout{width:100%!important}
 }
 
 @media(max-width:360px){
