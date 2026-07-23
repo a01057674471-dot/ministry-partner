@@ -32,9 +32,10 @@ function displayName(value: string) {
 
 function BrandMark() {
   return (
-    <svg className="partner-brand-svg" viewBox="0 0 64 64" role="img" aria-label="MP 로고">
-      <path d="M8 47V17h9l15 19 15-19h9v30H46V31L32 49 18 31v16z" fill="currentColor" />
-      <path d="M50 5l2.1 5L57 12l-4.9 2.1L50 19l-2.1-4.9L43 12l4.9-2z" fill="#f59e0b" />
+    <svg className="partner-brand-svg" viewBox="0 0 64 52" aria-hidden="true">
+      <path d="M4 14c10-4 18-2 26 5v27c-8-7-16-9-26-5V14Z" fill="currentColor" />
+      <path d="M60 14c-10-4-18-2-26 5v27c8-7 16-9 26-5V14Z" fill="currentColor" opacity=".84" />
+      <circle cx="32" cy="7" r="4" fill="#f59e0b" />
     </svg>
   );
 }
@@ -120,15 +121,15 @@ export default function Home() {
       <div className="partner-home-layout">
         <header className="partner-home-brand">
           <Link href="/" className="partner-home-logo" aria-label="사역파트너 홈">
-            <span className="partner-brand-symbol" aria-hidden="true"><BrandMark /></span>
-            <span><strong>사역파트너</strong><small>MINISTRY PARTNER</small></span>
+            <span className="partner-brand-symbol"><BrandMark /></span>
+            <span className="partner-brand-copy"><strong>사역파트너</strong><small>MINISTRY PARTNER</small></span>
           </Link>
           <p>안녕하세요, {name}님</p>
         </header>
 
         <section className="partner-principle">
           <span className="partner-principle-label">사역파트너의 원칙</span>
-          <h1>사역을 대신하지 않습니다.<br />사역에 더 집중하도록 돕습니다.</h1>
+          <h1><span>사역을 대신하지 않습니다.</span><span>사역에 더 집중하도록 돕습니다.</span></h1>
           <p>말씀과 기도, 사역자의 신학적 검토와 분별을 중심에 둡니다.</p>
           <span className="partner-principle-watermark" aria-hidden="true">MP</span>
         </section>
