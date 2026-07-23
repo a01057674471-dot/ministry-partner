@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
+import { checkRateLimit } from "../../lib/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -131,6 +132,14 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const rateLimit = checkRateLimit(request, { key: "generate", limit: 12, windowMs: 60_000 });
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { success: false, error: "요청이 많습니다. 잠시 후 다시 시도해 주세요." },
+        { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds) } },
+      );
+    }
+
     let body: unknown;
     try { body = await request.json(); }
     catch { return NextResponse.json({ success: false, error: "요청 형식이 올바르지 않습니다." }, { status: 400 }); }
