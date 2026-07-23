@@ -63,9 +63,7 @@ export default function Home() {
           })));
         }
       }
-    } catch {
-      setRecent([]);
-    }
+    } catch { setRecent([]); }
 
     try {
       const raw = localStorage.getItem("ministry-partner-schedule-v1");
@@ -73,9 +71,7 @@ export default function Home() {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed)) setSchedule(parsed);
       }
-    } catch {
-      setSchedule([]);
-    }
+    } catch { setSchedule([]); }
 
     const supabase = getSupabaseBrowserClient();
     if (!supabase) return;
@@ -130,21 +126,11 @@ export default function Home() {
           <p>안녕하세요, {name}님</p>
         </header>
 
-        <section className="partner-hero-grid">
-          <section className="partner-principle">
-            <span className="partner-principle-label">사역파트너의 원칙</span>
-            <h1>사역을 대신하지 않습니다.<br />사역에 더 집중하도록 돕습니다.</h1>
-            <p>말씀과 기도, 사역자의 신학적 검토와 분별을 중심에 둡니다.</p>
-            <span className="partner-principle-watermark" aria-hidden="true">MP</span>
-          </section>
-
-          <aside className="partner-hero-side">
-            <small>QUICK START</small>
-            <h2>바로 시작하기</h2>
-            <Link href="/sermon"><span>설교 준비</span><b>→</b></Link>
-            <Link href="/prayer"><span>대표기도 작성</span><b>→</b></Link>
-            <Link href="/workspace?request=청년부 카드뉴스를 만들어줘"><span>청년부 카드뉴스</span><b>→</b></Link>
-          </aside>
+        <section className="partner-principle">
+          <span className="partner-principle-label">사역파트너의 원칙</span>
+          <h1>사역을 대신하지 않습니다.<br />사역에 더 집중하도록 돕습니다.</h1>
+          <p>말씀과 기도, 사역자의 신학적 검토와 분별을 중심에 둡니다.</p>
+          <span className="partner-principle-watermark" aria-hidden="true">MP</span>
         </section>
 
         <form className="partner-command" onSubmit={submit}>
@@ -179,9 +165,7 @@ export default function Home() {
         </div>
 
         <section className="partner-section">
-          <div className="partner-section-title">
-            <div><small>CORE WORKFLOW</small><h2>핵심 기능</h2></div>
-          </div>
+          <div className="partner-section-title"><div><small>CORE WORKFLOW</small><h2>핵심 기능</h2></div></div>
           <div className="partner-quick-grid partner-quick-grid-wide">
             {coreTools.map((tool) => (
               <Link href={tool.href} key={tool.title} className={`partner-tool-card tone-${tool.tone}`}>
